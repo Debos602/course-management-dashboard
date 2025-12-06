@@ -194,15 +194,15 @@ const MaterialCard = ({ material }) => {
                         {/* Hover Overlays */}
                         <div
                             ref={overlayLeftRef}
-                            className="absolute top-0 left-0 h-full w-1/2 bg-gradient-to-r from-blue-500/20 to-transparent opacity-0"
+                            className="absolute top-0 left-0 h-full w-1/2 bg-gradient-to-r from-brand-500/20 to-transparent opacity-0"
                         />
                         <div
                             ref={overlayRightRef}
-                            className="absolute top-0 right-0 h-full w-1/2 bg-gradient-to-l from-blue-500/20 to-transparent opacity-0"
+                            className="absolute top-0 right-0 h-full w-1/2 bg-gradient-to-l from-brand-500/20 to-transparent opacity-0"
                         />
                         <div
                             ref={overlayFullRef}
-                            className="absolute inset-0 bg-blue-500/10 opacity-0"
+                            className="absolute inset-0 bg-brand-500/10 opacity-0"
                         />
                     </>
                 )}

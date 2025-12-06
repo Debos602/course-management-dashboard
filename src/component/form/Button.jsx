@@ -9,7 +9,7 @@ export const Button = ({
     return (
         <button
             type={type}
-            className={`w-full bg-gray-800 text-white py-2 rounded-md hover:bg-gray-700 transition-colors shadow-md ${className}`}
+            className={`w-full bg-brand-600 text-white py-2 rounded-md hover:bg-brand-700 transition-colors shadow-md ${className}`}
             {...props}
         >
             {children}

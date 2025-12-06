@@ -1,92 +1,85 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { logout, setUser } from "../features/auth/authSlice"; // setCredentials ব্যবহার করুন
+import { logout, setUser } from "../features/auth/authSlice";
 
+// Base query with token header
 const baseQuery = fetchBaseQuery({
-    baseUrl: "http://localhost:5000/api/v1",
-    credentials: "same-origin",
-    prepareHeaders: (headers, { getState }) => {
-        headers.set("Content-Type", "application/json");
-        const token = getState().auth.token;
-        if (token) {
-            headers.set("authorization", `Bearer ${token}`);
-        }
-        return headers;
-    },
+  baseUrl: import.meta.env.VITE_API_BASE_URL, // Example: http://localhost:5000/api/v1
+  credentials: "include",
+  prepareHeaders: (headers, { getState }) => {
+    headers.set("Content-Type", "application/json");
+    const token = getState().auth.token;
+    if (token) headers.set("Authorization", `Bearer ${token}`);
+    return headers;
+  },
 });
 
+// Wrapper to handle 401 + refresh token
 const baseQueryWithRefreshToken = async (args, api, extraOptions) => {
-    let result = await baseQuery(args, api, extraOptions);
+  let result = await baseQuery(args, api, extraOptions);
 
-    // 401 এরর চেক করুন
-    if (result?.error?.status === 401) {
-        console.log("টোকেন এক্সপায়ার্ড, রিফ্রেশ চেষ্টা করছি...");
+  if (result?.error?.status === 401) {
+    const { token, refreshToken, user } = api.getState().auth;
 
-        const { token, refreshToken } = api.getState().auth;
-
-        if (!refreshToken) {
-            console.error("রিফ্রেশ টোকেন নেই, লগআউট করছি");
-            api.dispatch(logout());
-            return result;
-        }
-
-        try {
-            // সঠিক বডি স্ট্রাকচার ব্যবহার করুন
-            const refreshResponse = await baseQuery(
-                {
-                    url: "/Account/RefreshToken",
-                    method: "POST",
-                    body: JSON.stringify({
-                        AccessToken: token,
-                        RefreshToken: refreshToken,
-                    }),
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                },
-                api,
-                extraOptions
-            );
-
-            if (refreshResponse.data) {
-                console.log("টোকেন রিফ্রেশ সফল");
-                const { AccessToken, RefreshToken } = refreshResponse.data;
-
-                // শুধু টোকেন আপডেট করুন (user ডাটা ছাড়া)
-                api.dispatch(
-                    setUser({
-                        token: AccessToken,
-                        refreshToken: RefreshToken,
-                    })
-                );
-
-                // নতুন টোকেন দিয়ে রিকোয়েস্ট রিট্রাই করুন
-                const retryResult = await baseQuery(
-                    {
-                        ...args,
-                        headers: {
-                            ...args.headers,
-                            Authorization: `Bearer ${AccessToken}`,
-                        },
-                    },
-                    api,
-                    extraOptions
-                );
-                return retryResult;
-            } else {
-                console.error("রিফ্রেশ ফেইল্ড, লগআউট করছি");
-                api.dispatch(logout());
-            }
-        } catch (error) {
-            console.error("রিফ্রেশ টোকেন এরর:", error);
-            api.dispatch(logout());
-        }
+    if (!refreshToken) {
+      console.warn("[baseQuery] No refresh token available, logging out");
+      api.dispatch(logout());
+      return result;
     }
-    return result;
+
+    try {
+      // Refresh token request
+      const refreshResult = await baseQuery(
+        {
+          url: "/auth/refresh-token",
+          method: "POST",
+          body: { accessToken: token, refreshToken }, // server expects object
+        },
+        api,
+        extraOptions
+      );
+
+      if (refreshResult.data && refreshResult.data.accessToken && refreshResult.data.refreshToken) {
+        const { accessToken, refreshToken: newRefreshToken } = refreshResult.data;
+
+        // Update Redux state with new tokens
+        api.dispatch(
+          setUser({
+            user, // preserve existing user info
+            token: accessToken,
+            refreshToken: newRefreshToken,
+          })
+        );
+
+        console.log("[baseQuery] Token refreshed, retrying original request");
+
+        // Retry original request with new token
+        return await baseQuery(
+          {
+            ...args,
+            headers: {
+              ...args.headers,
+              Authorization: `Bearer ${accessToken}`,
+            },
+          },
+          api,
+          extraOptions
+        );
+      } else {
+        console.warn("[baseQuery] Refresh token failed, logging out");
+        api.dispatch(logout());
+      }
+    } catch (err) {
+      console.error("[baseQuery] Refresh token error:", err);
+      api.dispatch(logout());
+    }
+  }
+
+  return result;
 };
 
 export const baseApi = createApi({
-    reducerPath: "baseApi",
-    baseQuery: baseQueryWithRefreshToken,
-    tagTypes: ["User", "Admin", "Materials"],
-    endpoints: () => ({}),
+  reducerPath: "baseApi",
+  baseQuery: baseQueryWithRefreshToken,
+  tagTypes: ["User", "Admin", "Materials"],
+  endpoints: () => ({}),
 });

@@ -27,11 +27,13 @@ const Utils = {
     },
     rand: (min, max) => Math.floor(Math.random() * (max - min + 1) + min),
     CHART_COLORS: {
-        gray: "#6c757d",
-        lightGray: "#adb5bd",
-        darkGray: "#495057",
-        mediumGray: "#868e96",
-        charcoal: "#343a40",
+        // Brand bluish palette (matches `brand` Tailwind colors)
+        brand50: "#f0f9ff",
+        brand100: "#e0f2fe",
+        brand300: "#7dd3fc",
+        brand500: "#0ea5e9",
+        brand700: "#0369a1",
+        charcoal: "#0f172a",
     },
 };
 
@@ -53,18 +55,18 @@ const DoughnutChartUserActivity = () => {
                 label: "User Activity Count",
                 data: Utils.numbers(NUMBER_CFG), // Simulated user count data for activities
                 backgroundColor: [
-                    Utils.CHART_COLORS.gray,
-                    Utils.CHART_COLORS.lightGray,
-                    Utils.CHART_COLORS.darkGray,
-                    Utils.CHART_COLORS.mediumGray,
-                    Utils.CHART_COLORS.charcoal,
+                    Utils.CHART_COLORS.brand500,
+                    Utils.CHART_COLORS.brand300,
+                    Utils.CHART_COLORS.brand100,
+                    Utils.CHART_COLORS.brand50,
+                    Utils.CHART_COLORS.brand700,
                 ],
                 hoverBackgroundColor: [
-                    Utils.CHART_COLORS.lightGray,
-                    Utils.CHART_COLORS.darkGray,
-                    Utils.CHART_COLORS.mediumGray,
-                    Utils.CHART_COLORS.charcoal,
-                    Utils.CHART_COLORS.gray,
+                    Utils.CHART_COLORS.brand300,
+                    Utils.CHART_COLORS.brand500,
+                    Utils.CHART_COLORS.brand100,
+                    Utils.CHART_COLORS.brand700,
+                    Utils.CHART_COLORS.brand50,
                 ],
                 borderWidth: 0,
             },
@@ -85,7 +87,7 @@ const DoughnutChartUserActivity = () => {
                     text: "User Activity Count",
                     font: {
                         size: 18,
-                        color: Utils.CHART_COLORS.charcoal,
+                        color: Utils.CHART_COLORS.brand700,
                         weight: "bold",
                     },
                     padding: {
@@ -98,7 +100,7 @@ const DoughnutChartUserActivity = () => {
     };
 
     return (
-        <div className="flex flex-col justify-center items-center bg-white p-4 rounded-lg shadow-lg">
+        <div className="flex flex-col justify-center items-center bg-white p-4 rounded-md shadow-xl">
             {/* Chart */}
             <div className="relative w-[200px] h-[200px]">
                 <Doughnut data={activityData} options={config.options} />
@@ -106,7 +108,7 @@ const DoughnutChartUserActivity = () => {
 
             {/* Custom Legend as List */}
             <div className="mt-6 w-full max-w-md">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                <h3 className="text-lg font-semibold text-brand-900 mb-4">
                     Activity Breakdown
                 </h3>
                 <ul className="space-y-2">
@@ -120,7 +122,7 @@ const DoughnutChartUserActivity = () => {
                                             .backgroundColor[index],
                                 }}
                             ></span>
-                            <span className="text-gray-700">{label}</span>
+                            <span className="text-brand-800">{label}</span>
                         </li>
                     ))}
                 </ul>

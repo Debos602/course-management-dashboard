@@ -52,58 +52,77 @@ const Dashbar = () => {
     }, []);
 
     return (
-        <section className="sticky top-0 z-50 max-w-full mx-auto px-5 py-4 bg-gray-200 border-b dark:bg-gray-900">
-            <div className="text-gray-950 text-[14px] md:text-[18px] flex justify-between items-center dark:text-amber-50">
-                <h1 className="font-bold">Dashboard</h1>
+        <section className="sticky top-0 z-50 w-full mx-auto px-4 py-3 bg-gradient-to-r from-brand-50 to-white/60 border-b border-brand-100 backdrop-blur-sm">
+            <div className="text-brand-900 text-[14px] md:text-[18px] flex justify-between items-center">
+                <div className="flex items-center gap-4">
+                    <div className="bg-brand-600 rounded-md p-2 shadow-md">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-white">
+                            <path d="M3 12h18M3 6h18M3 18h18" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                    </div>
+                    <h1 className="font-bold text-brand-800 text-lg md:text-xl">Dashboard</h1>
+                </div>
                 <div className="flex items-center gap-6">
                     <div className="relative" ref={searchRef}>
                         <div className="relative">
                             <input
                                 type="text"
-                                placeholder="Search..."
-                                className={`px-4 py-2 border rounded-full focus:outline-none transition-all duration-300 ${
-                                    searchOpen
-                                        ? "w-64 opacity-100"
-                                        : "w-0 opacity-0"
-                                } md:w-64 md:opacity-100 dark:bg-gray-700 dark:border-gray-600`}
+                                placeholder="Search courses, users..."
+                                className={`px-4 py-2 rounded-full focus:outline-none transition-all duration-300 text-sm md:text-base shadow-sm ${
+                                    searchOpen ? "w-64 opacity-100" : "w-0 opacity-0"
+                                } md:w-64 md:opacity-100 bg-brand-50 border border-brand-100 focus:ring-2 focus:ring-brand-300`}
                             />
                             <FaSearch
-                                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 cursor-pointer md:hidden dark:text-gray-300"
+                                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-brand-500 cursor-pointer md:hidden"
                                 onClick={toggleSearch}
                             />
                         </div>
                     </div>
                     <div className="relative" ref={dropdownRef}>
                         <div className="flex items-center gap-6">
-                            <IoNotifications className="text-2xl cursor-pointer hover:text-blue-600 transition-colors dark:hover:text-blue-400" />
+                            <div className="relative">
+                                <IoNotifications className="text-2xl cursor-pointer text-brand-600 hover:text-brand-700 transition-colors" />
+                                <span className="absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-medium leading-none text-white bg-red-500 rounded-full shadow">3</span>
+                            </div>
                             <div
                                 className="cursor-pointer"
                                 onClick={toggleDropdown}
                             >
-                                <img
-                                    src={`https://d1wh1xji6f82aw.cloudfront.net/${user.Avatar}`}
-                                    alt="User Avatar"
-                                    className="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover border-2 border-transparent hover:border-blue-500 transition-all"
-                                />
+                                {user?.Avatar ? (
+                                    <img
+                                        src={`https://d1wh1xji6f82aw.cloudfront.net/${user?.Avatar}`}
+                                        alt={user?.name || "User avatar"}
+                                        className="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover ring-2 ring-white shadow-sm hover:scale-105 transition-transform"
+                                    />
+                                ) : (
+                                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-brand-50 text-brand-600 flex items-center justify-center ring-2 ring-white shadow-sm hover:scale-105 transition-transform">
+                                        <CgProfile className="text-lg md:text-xl" aria-hidden="true" />
+                                    </div>
+                                )}
                             </div>
                         </div>
                         {dropdownOpen && (
-                            <div className="absolute right-0 top-[55px] mt-2 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg overflow-hidden">
+                            <div className="absolute right-0 top-[55px] mt-2 w-72 bg-white ring-1 ring-brand-100 rounded-xl shadow-2xl overflow-hidden">
                                 {/* User info section */}
-                                <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
+                                <div className="px-4 py-3 border-b border-brand-50 bg-brand-50">
                                     <div className="flex items-center gap-3">
-                                        <img
-                                            src={`https://d1wh1xji6f82aw.cloudfront.net/${user.Avatar}`}
-                                            alt="User Avatar"
-                                            className="w-10 h-10 rounded-full object-cover"
-                                        />
+                                       {user?.Avatar ? (
+                                    <img
+                                        src={`https://d1wh1xji6f82aw.cloudfront.net/${user?.Avatar}`}
+                                        alt={user?.name || "User avatar"}
+                                        className="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover ring-2 ring-white shadow-sm hover:scale-105 transition-transform"
+                                    />
+                                ) : (
+                                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-brand-50 text-brand-600 flex items-center justify-center ring-2 ring-white shadow-sm hover:scale-105 transition-transform">
+                                        <CgProfile className="text-lg md:text-xl" aria-hidden="true" />
+                                    </div>
+                                )}
                                         <div>
-                                            <p className="font-medium text-gray-900 dark:text-white">
-                                                {user.name || "User"}
+                                            <p className="font-medium text-brand-900">
+                                                {user?.name || user?.Username || "User"}
                                             </p>
-                                            <p className="text-sm text-gray-500 dark:text-gray-300 truncate">
-                                                {user.email ||
-                                                    "user@example.com"}
+                                            <p className="text-sm text-brand-600 truncate">
+                                                {user?.email || "user@example.com"}
                                             </p>
                                         </div>
                                     </div>
@@ -112,22 +131,22 @@ const Dashbar = () => {
                                 {/* Dropdown items */}
                                 <Link
                                     to="#"
-                                    className="px-4 py-3 text-gray-800 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-gray-700 flex items-center gap-3 transition-colors"
+                                    className="px-4 py-3 text-brand-800 hover:bg-brand-50 flex items-center gap-3 transition-colors"
                                 >
-                                    <CgProfile className="text-lg text-blue-500" />
+                                    <CgProfile className="text-lg text-brand-600" />
                                     <span>Profile</span>
                                 </Link>
                                 <Link
                                     to="#"
-                                    className="px-4 py-3 text-gray-800 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-gray-700 flex items-center gap-3 transition-colors"
+                                    className="px-4 py-3 text-brand-800 hover:bg-brand-50 flex items-center gap-3 transition-colors"
                                 >
-                                    <CiSettings className="text-lg text-blue-500" />
+                                    <CiSettings className="text-lg text-brand-600" />
                                     <span>Settings</span>
                                 </Link>
                                 <Link
                                     onClick={handleLogout}
                                     to="#"
-                                    className="px-4 py-3 text-gray-800 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-gray-700 flex items-center gap-3 transition-colors"
+                                    className="px-4 py-3 text-brand-800 hover:bg-brand-50 flex items-center gap-3 transition-colors"
                                 >
                                     <RiLogoutCircleRLine className="text-lg text-red-500" />
                                     <span>Logout</span>

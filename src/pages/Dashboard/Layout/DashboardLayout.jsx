@@ -1,8 +1,22 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import Sidebar from "../Sidebar/Sidebar";
 import Dashbar from "../Dashbar/Dashbar";
+import { useAppSelector } from "../../../redux/features/hook";
+import { useEffect } from "react";
 
-const AdminsDashboard = () => {
+const DashboardLayout = () => {
+    const location = useLocation();
+    const navigate = useNavigate();
+    const user = useAppSelector((s) => s.auth.user);
+    const role = (user?.role || user?.Role || "").toString().toLowerCase();
+
+    // If student lands on /dashboard root, redirect to /dashboard/student
+    useEffect(() => {
+        if (location.pathname === "/dashboard" && role === "student") {
+            navigate("/dashboard/student", { replace: true });
+        }
+    }, [location.pathname, role, navigate]);
+
     return (
         <div className="flex wrap">
             <Sidebar />
@@ -19,4 +33,4 @@ const AdminsDashboard = () => {
     );
 };
 
-export default AdminsDashboard;
+export default DashboardLayout;

@@ -77,6 +77,14 @@ const DashboardOverview = () => {
         ]);
     }, []);
 
+    // map color keys to bluish Tailwind utility classes
+    const colorMap = {
+        blue: { text: "text-brand-700", dot: "bg-brand-100", highlight: "bg-brand-50" },
+        green: { text: "text-brand-700", dot: "bg-brand-100", highlight: "bg-brand-50" },
+        purple: { text: "text-brand-700", dot: "bg-brand-100", highlight: "bg-brand-50" },
+        red: { text: "text-brand-600", dot: "bg-brand-50", highlight: "bg-brand-50" },
+    };
+
     useEffect(() => {
         // Header Animation: Fade in and slide from left
         gsap.fromTo(
@@ -121,51 +129,56 @@ const DashboardOverview = () => {
     }, []);
 
     return (
-        <div className="px-6 py-8 bg-gray-100">
+        <div className="px-4 py-6 sm:px-6 lg:px-8 bg-gray-100 min-h-screen">
             {/* Header Section */}
             <div
                 ref={headerRef}
-                className="flex flex-col md:flex-row justify-between items-center mb-6 bg-white shadow-md p-4 rounded-md"
+                className="flex flex-col md:flex-row justify-between items-center mb-6 bg-white shadow-md p-4 rounded-md border-l-4 border-brand-600"
             >
-                <div className="text-2xl font-semibold text-gray-800">
-                    Welcome, {user.Username}!
+                <div className="text-2xl font-semibold text-brand-900">
+                    Welcome, {user?.Username || user?.username || "User"}!
                 </div>
             </div>
 
-            {/* Quick Actions */}
-            <div className="grid grid-cols-8 gap-6">
-                <div className="col-span-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Quick Actions and Charts */}
+            <div className="grid grid-cols-1 md:grid-cols-8 gap-6">
+                <div className="md:col-span-6 col-span-1">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                         {quickActions.map((action, index) => (
                             <div
                                 key={index}
-                                ref={(el) =>
-                                    (quickActionsRef.current[index] = el)
-                                }
-                                className="bg-white p-4 rounded-md shadow hover:shadow-lg cursor-pointer"
+                                ref={(el) => (quickActionsRef.current[index] = el)}
+                                className="bg-white p-4 rounded-md shadow hover:shadow-lg cursor-pointer flex items-start gap-3"
+                                role="button"
+                                tabIndex={0}
                             >
                                 <div
-                                    className={`text-lg font-semibold text-${action.color}-600`}
+                                    className={`flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center ${
+                                        colorMap[action.color]?.dot || "bg-brand-100"
+                                    }`}
                                 >
-                                    {action.title}
+                                    <span className={colorMap[action.color]?.text || "text-brand-600"}>
+                                        •
+                                    </span>
                                 </div>
-                                <div className="text-gray-500 text-sm">
-                                    {action.description}
+                                <div className="flex-1">
+                                    <div className={`text-lg font-semibold ${colorMap[action.color]?.text || "text-brand-600"}`}>
+                                        {action.title}
+                                    </div>
+                                    <div className="text-gray-500 text-sm">{action.description}</div>
                                 </div>
                             </div>
                         ))}
                     </div>
 
                     {/* Recent Activity */}
-                    <div
-                        ref={chartRef}
-                        className="bg-gray-100 p-6 rounded-md shadow-xl mt-8"
-                    >
+                    <div ref={chartRef} className="bg-white p-4 rounded-md shadow-xl mt-6">
                         <MultiAxisLineChart />
                     </div>
                 </div>
-                <div className="col-span-2">
-                    <div className="bg-gray-100 rounded-md shadow-xl">
+
+                <div className="md:col-span-2 col-span-1">
+                    <div className="bg-white rounded-md shadow-xl p-4">
                         <DoughnutChartGray />
                     </div>
                 </div>
@@ -199,7 +212,7 @@ const DashboardOverview = () => {
                                 key={index}
                                 className={
                                     data.country === user.country
-                                        ? "bg-blue-50"
+                                        ? "bg-brand-50"
                                         : ""
                                 }
                             >
