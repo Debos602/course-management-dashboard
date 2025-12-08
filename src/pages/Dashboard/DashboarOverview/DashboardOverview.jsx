@@ -185,51 +185,89 @@ const DashboardOverview = () => {
             </div>
 
             {/* Country Data Table */}
-            <div
-                ref={tableRef}
-                className="bg-white p-6 rounded-md shadow-md mt-8"
-            >
-                <h2 className="text-xl font-semibold text-gray-800 mb-4">
-                    Country Data
-                </h2>
-                <table className="min-w-full bg-white">
-                    <thead>
-                        <tr>
-                            <th className="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-sm font-semibold text-gray-600">
-                                Country
-                            </th>
-                            <th className="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-sm font-semibold text-gray-600">
-                                Population
-                            </th>
-                            <th className="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-sm font-semibold text-gray-600">
-                                GDP (USD)
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {userCountryData.map((data, index) => (
-                            <tr
-                                key={index}
-                                className={
-                                    data.country === user.country
-                                        ? "bg-brand-50"
-                                        : ""
+           {/* Recent Enrolled Students Table */}
+<div
+    ref={tableRef}
+    className="bg-white p-6 rounded-md shadow-md mt-8"
+>
+    <h2 className="text-xl font-semibold text-gray-800 mb-4">
+        Recent Enrolled Students
+    </h2>
+    <table className="min-w-full bg-white">
+        <thead>
+            <tr>
+                <th className="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-sm font-semibold text-gray-600">
+                    Student
+                </th>
+                <th className="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-sm font-semibold text-gray-600">
+                    Course
+                </th>
+                <th className="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-sm font-semibold text-gray-600">
+                    Enrollment Date
+                </th>
+                <th className="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-sm font-semibold text-gray-600">
+                    Status
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            {[
+                {
+                    student: "John Doe",
+                    course: "React for Beginners",
+                    date: "Jan 10, 2025",
+                    status: "Active",
+                },
+                {
+                    student: "Sarah Khan",
+                    course: "Advanced Node.js",
+                    date: "Jan 5, 2025",
+                    status: "Completed",
+                },
+                {
+                    student: "Michael Lee",
+                    course: "UI/UX Bootcamp",
+                    date: "Jan 3, 2025",
+                    status: "Active",
+                },
+                {
+                    student: "Emma Watson",
+                    course: "Python Data Analysis",
+                    date: "Dec 30, 2024",
+                    status: "Pending",
+                },
+            ].map((data, idx) => (
+                <tr key={idx}>
+                    <td className="py-2 px-4 border-b border-gray-200 text-sm text-gray-700">
+                        {data.student}
+                    </td>
+                    <td className="py-2 px-4 border-b border-gray-200 text-sm text-gray-700">
+                        {data.course}
+                    </td>
+                    <td className="py-2 px-4 border-b border-gray-200 text-sm text-gray-700">
+                        {data.date}
+                    </td>
+                    <td className="py-2 px-4 border-b border-gray-200 text-sm text-gray-700">
+                        <span
+                            className={`px-3 py-1 rounded-full text-xs font-medium
+                                ${
+                                    data.status === "Active"
+                                        ? "bg-green-100 text-green-700"
+                                        : data.status === "Pending"
+                                        ? "bg-yellow-100 text-yellow-700"
+                                        : "bg-gray-100 text-gray-700"
                                 }
-                            >
-                                <td className="py-2 px-4 border-b border-gray-200 text-sm text-gray-700">
-                                    {data.country}
-                                </td>
-                                <td className="py-2 px-4 border-b border-gray-200 text-sm text-gray-700">
-                                    {data.population.toLocaleString()}
-                                </td>
-                                <td className="py-2 px-4 border-b border-gray-200 text-sm text-gray-700">
-                                    ${data.gdp.toLocaleString()}
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+                            `}
+                        >
+                            {data.status}
+                        </span>
+                    </td>
+                </tr>
+            ))}
+        </tbody>
+    </table>
+</div>
+
         </div>
     );
 };

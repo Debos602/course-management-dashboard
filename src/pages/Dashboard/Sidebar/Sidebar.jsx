@@ -14,11 +14,11 @@ const Sidebar = () => {
         role === "student"
             ? [
                   { to: "student", label: "My Courses", Icon: MdOutlineSchool },
-                  { to: "materials", label: "Materials", Icon: FaShoppingCart },
+                  { to: "course-management", label: "Course Management", Icon: FaShoppingCart },
               ]
             : [
                   { to: "", label: "Dashboard Overview", Icon: FaTachometerAlt },
-                  { to: "materials", label: "Materials", Icon: FaShoppingCart },
+                  { to: "course-management", label: "Course Management", Icon: FaShoppingCart },
                   { to: "users", label: "Users", Icon: FaUser },
               ];
 

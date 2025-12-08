@@ -6,7 +6,7 @@ const baseQuery = fetchBaseQuery({
   baseUrl: import.meta.env.VITE_API_BASE_URL, // Example: http://localhost:5000/api/v1
   credentials: "include",
   prepareHeaders: (headers, { getState }) => {
-    headers.set("Content-Type", "application/json");
+    // headers.set("Content-Type", "application/json");
     const token = getState().auth.token;
     if (token) headers.set("Authorization", `Bearer ${token}`);
     return headers;

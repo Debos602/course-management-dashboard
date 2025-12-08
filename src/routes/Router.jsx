@@ -9,7 +9,7 @@ import CoursePage from "../pages/Dashboard/CoursePage";
 import Login from "../pages/Login/Login";
 import Register from "../pages/Register/Register";
 import ProtectedRoute from "./ProtectedRoute";
-import Materials from "../pages/Materials/Materials";
+import CourseManagement from "../pages/CourseManagement/CourseManagement";
 
 export const router = createBrowserRouter([
     { path: "/", element: <Login /> }, // Login route
@@ -27,7 +27,7 @@ export const router = createBrowserRouter([
             { path: "student", element: <StudentDashboard /> },
             { path: "course/:id", element: <CoursePage /> },
             { path: "users", element: <Users /> },
-            { path: "Materials", element: <Materials /> },
+            { path: "course-management", element: <CourseManagement /> },
         ],
     },
     {
