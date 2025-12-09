@@ -2,6 +2,8 @@ import { FaShoppingCart, FaTachometerAlt, FaUser } from "react-icons/fa";
 import { Link, useLocation } from "react-router-dom";
 import { MdOutlineSchool } from "react-icons/md";
 import { useAppSelector } from "../../../redux/features/hook";
+import { BathIcon } from "lucide-react";
+
 
 const Sidebar = () => {
     const location = useLocation(); // Get current path
@@ -19,7 +21,7 @@ const Sidebar = () => {
             : [
                   { to: "", label: "Dashboard Overview", Icon: FaTachometerAlt },
                   { to: "course-management", label: "Course Management", Icon: FaShoppingCart },
-                  { to: "users", label: "Users", Icon: FaUser },
+                  { to: "batch", label: "Batch", Icon: BathIcon },
               ];
 
     return (
@@ -30,7 +32,7 @@ const Sidebar = () => {
                         <div className="p-1 rounded-md bg-white/10 mr-2">
                             <MdOutlineSchool size={40} className="mr-2" />
                         </div>
-                        <span className="text-2xl font-bold">CourseManage</span>
+                        <span className="text-2xl font-bold hidden md:block">CourseManage</span>
                     </Link>
                 </div>
 
