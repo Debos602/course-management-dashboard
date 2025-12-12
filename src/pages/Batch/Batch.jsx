@@ -7,12 +7,16 @@ import {
   Eye, Save, ChevronLeft, UserPlus, UserMinus
 } from "lucide-react";
 import Loading from "../../component/Loading/Loading";
+import { useGetAllBatchesQuery } from "../../redux/features/batch/batchApi";
 
 const Batch = () => {
+
+    const { data: batch, isLoading, isError, error } = useGetAllBatchesQuery();
+    console.log("api-batch", batch);
+
+
     // State management
     const [batches, setBatches] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
     const [selectedBatch, setSelectedBatch] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false);
@@ -36,6 +40,12 @@ const Batch = () => {
     const statsRef = useRef(null);
     const headerRef = useRef(null);
 
+    useEffect(() => {
+        if (batch?.data) {
+            setBatches(batch.data);
+        }
+    }, [batch]);
+
     // Calculate batch statistics
     const calculateStats = () => {
         if (!batches.length) return { total: 0, active: 0, full: 0, avgCapacity: 0 };
@@ -46,11 +56,11 @@ const Batch = () => {
         ).length;
         
         const full = batches.filter(batch => 
-            batch.students?.length >= batch.capacity
+            batch.enrollments?.length >= batch.capacity
         ).length;
         
         const avgCapacity = batches.length ? 
-            Math.round(batches.reduce((sum, batch) => sum + (batch.students?.length || 0), 0) / batches.length) : 0;
+            Math.round(batches.reduce((sum, batch) => sum + (batch.enrollments?.length || 0), 0) / batches.length) : 0;
         
         return {
             total: batches.length,
@@ -61,111 +71,6 @@ const Batch = () => {
     };
 
     const stats = calculateStats();
-
-    // Simulated API call with your data format
-    useEffect(() => {
-        const fetchBatches = async () => {
-            try {
-                // Simulate API delay
-                await new Promise(resolve => setTimeout(resolve, 800));
-                
-                // Your sample data with additional batches for demonstration
-                const sampleData = {
-                    success: true,
-                    statusCode: 200,
-                    message: "Batches fetched",
-                    data: [
-                        {
-                            "_id": "69370c92ef2b760f0d29cd82",
-                            "name": "Alpha Batch 1",
-                            "course": "Advanced React Development",
-                            "courseId": "69327842d700ff6e0ae41141",
-                            "startDate": "2026-01-01T00:00:00.000Z",
-                            "endDate": "2026-03-01T00:00:00.000Z",
-                            "instructor": "Dr. Sarah Johnson",
-                            "instructorId": "64f3c9f1a9e0a4b5d6c0c001",
-                            "students": [
-                                { id: "64f3c9f1a9e0a4b5d6c0d001", name: "John Doe", email: "john@example.com" },
-                                { id: "64f3c9f1a9e0a4b5d6c0d002", name: "Jane Smith", email: "jane@example.com" },
-                                { id: "64f3c9f1a9e0a4b5d6c0d003", name: "Mike Johnson", email: "mike@example.com" }
-                            ],
-                            "capacity": 20,
-                            "status": "upcoming",
-                            "createdAt": "2025-12-08T12:00:00.000Z",
-                            "updatedAt": "2025-12-08T19:17:44.205Z"
-                        },
-                        {
-                            "_id": "69370c92ef2b760f0d29cd83",
-                            "name": "Beta Batch 2",
-                            "course": "Node.js Backend Mastery",
-                            "courseId": "69327842d700ff6e0ae41142",
-                            "startDate": "2025-11-15T00:00:00.000Z",
-                            "endDate": "2026-02-15T00:00:00.000Z",
-                            "instructor": "Prof. Alex Chen",
-                            "instructorId": "64f3c9f1a9e0a4b5d6c0c002",
-                            "students": Array.from({ length: 15 }, (_, i) => ({
-                                id: `student_${i}`,
-                                name: `Student ${i + 1}`,
-                                email: `student${i + 1}@example.com`
-                            })),
-                            "capacity": 25,
-                            "status": "active",
-                            "createdAt": "2025-11-01T12:00:00.000Z",
-                            "updatedAt": "2025-12-08T19:17:44.205Z"
-                        },
-                        {
-                            "_id": "69370c92ef2b760f0d29cd84",
-                            "name": "Gamma Batch 3",
-                            "course": "Full Stack Web Development",
-                            "courseId": "69327842d700ff6e0ae41143",
-                            "startDate": "2025-09-01T00:00:00.000Z",
-                            "endDate": "2025-12-01T00:00:00.000Z",
-                            "instructor": "Dr. Maria Rodriguez",
-                            "instructorId": "64f3c9f1a9e0a4b5d6c0c003",
-                            "students": Array.from({ length: 30 }, (_, i) => ({
-                                id: `student_${i + 15}`,
-                                name: `Student ${i + 16}`,
-                                email: `student${i + 16}@example.com`
-                            })),
-                            "capacity": 30,
-                            "status": "completed",
-                            "createdAt": "2025-08-15T12:00:00.000Z",
-                            "updatedAt": "2025-12-08T19:17:44.205Z"
-                        },
-                        {
-                            "_id": "69370c92ef2b760f0d29cd85",
-                            "name": "Delta Batch 4",
-                            "course": "Machine Learning Fundamentals",
-                            "courseId": "69327842d700ff6e0ae41144",
-                            "startDate": "2026-03-01T00:00:00.000Z",
-                            "endDate": "2026-06-01T00:00:00.000Z",
-                            "instructor": "Dr. James Wilson",
-                            "instructorId": "64f3c9f1a9e0a4b5d6c0c004",
-                            "students": [
-                                { id: "s1", name: "Alice Brown", email: "alice@example.com" },
-                                { id: "s2", name: "Bob Green", email: "bob@example.com" }
-                            ],
-                            "capacity": 18,
-                            "status": "upcoming",
-                            "createdAt": "2025-12-01T12:00:00.000Z",
-                            "updatedAt": "2025-12-08T19:17:44.205Z"
-                        }
-                    ]
-                };
-
-                setBatches(sampleData.data);
-                setLoading(false);
-                
-                // Animate elements after data load
-                animatePageElements();
-            } catch (err) {
-                setError(err.message);
-                setLoading(false);
-            }
-        };
-
-        fetchBatches();
-    }, []);
 
     // GSAP Animations
     const animatePageElements = () => {
@@ -244,6 +149,12 @@ const Batch = () => {
         );
     };
 
+    useEffect(() => {
+        if (!isLoading && batches.length > 0) {
+            animatePageElements();
+        }
+    }, [isLoading, batches]);
+
     // Modal animations
     useEffect(() => {
         if (isModalOpen && modalRef.current) {
@@ -275,12 +186,12 @@ const Batch = () => {
     // Filter batches
     const filteredBatches = batches.filter(batch => {
         const matchesSearch = batch.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            batch.course.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            batch.instructor.toLowerCase().includes(searchTerm.toLowerCase());
+                            batch.course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                            batch.course.instructorName.toLowerCase().includes(searchTerm.toLowerCase());
         
         const matchesCapacity = !filterCapacity || 
-            (filterCapacity === "full" && batch.students.length >= batch.capacity) ||
-            (filterCapacity === "available" && batch.students.length < batch.capacity);
+            (filterCapacity === "full" && batch.enrollments.length >= batch.capacity) ||
+            (filterCapacity === "available" && batch.enrollments.length < batch.capacity);
         
         return matchesSearch && matchesCapacity;
     });
@@ -309,11 +220,11 @@ const Batch = () => {
         setIsEditMode(true);
         setFormData({
             name: batch.name,
-            course: batch.courseId,
+            course: batch.course._id,
             startDate: batch.startDate.split('T')[0],
             endDate: batch.endDate.split('T')[0],
-            instructor: batch.instructorId,
-            students: batch.students,
+            instructor: batch.course.instructorName,
+            students: batch.enrollments,
             capacity: batch.capacity
         });
         setIsModalOpen(true);
@@ -356,17 +267,33 @@ const Batch = () => {
         
         if (isEditMode) {
             // Update existing batch
-            setBatches(prev => prev.map(batch => 
-                batch._id === selectedBatch._id 
-                    ? { ...batch, ...formData, name: formData.name, capacity: formData.capacity }
-                    : batch
+            setBatches(prev => prev.map(b => 
+                b._id === selectedBatch._id 
+                    ? { 
+                        ...b, 
+                        name: formData.name,
+                        course: { ...b.course, _id: formData.course, instructorName: formData.instructor },
+                        startDate: formData.startDate,
+                        endDate: formData.endDate,
+                        capacity: formData.capacity 
+                      }
+                    : b
             ));
         } else {
             // Create new batch
             const newBatch = {
                 _id: Date.now().toString(),
-                ...formData,
-                status: "upcoming",
+                name: formData.name,
+                course: {
+                    _id: formData.course,
+                    title: `Course ${formData.course}`,
+                    instructorName: formData.instructor,
+                    thumbnailURL: ""
+                },
+                startDate: `${formData.startDate}T00:00:00.000Z`,
+                endDate: `${formData.endDate}T00:00:00.000Z`,
+                enrollments: [],
+                capacity: formData.capacity,
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString()
             };
@@ -418,8 +345,8 @@ const Batch = () => {
         });
     };
 
-    if (loading) return <Loading />;
-    if (error) return <div className="error-container">Error: {error}</div>;
+    if (isLoading) return <Loading />;
+    if (isError) return <div className="error-container">Error: {error?.message}</div>;
 
     return (
         <div className="batch-management p-4 md:p-6 min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
@@ -558,7 +485,7 @@ const Batch = () => {
                                         </span>
                                     </div>
                                     <h3 className="text-xl font-bold text-gray-900 mb-1">{batch.name}</h3>
-                                    <p className="text-gray-600 text-sm">{batch.course}</p>
+                                    <p className="text-gray-600 text-sm">{batch.course.title}</p>
                                 </div>
                             </div>
 
@@ -567,7 +494,7 @@ const Batch = () => {
                                 <div className="flex items-center gap-3">
                                     <User className="w-4 h-4 text-gray-400" />
                                     <span className="text-sm text-gray-600">
-                                        <strong>Instructor:</strong> {batch.instructor}
+                                        <strong>Instructor:</strong> {batch.course.instructorName}
                                     </span>
                                 </div>
                                 <div className="flex items-center gap-3">
@@ -579,7 +506,7 @@ const Batch = () => {
                                 <div className="flex items-center gap-3">
                                     <Users className="w-4 h-4 text-gray-400" />
                                     <span className="text-sm text-gray-600">
-                                        <strong>Students:</strong> {batch.students?.length || 0} / {batch.capacity}
+                                        <strong>Students:</strong> {batch.enrollments?.length || 0} / {batch.capacity}
                                     </span>
                                 </div>
                             </div>
@@ -588,16 +515,16 @@ const Batch = () => {
                             <div className="mb-6">
                                 <div className="flex justify-between text-sm text-gray-600 mb-1">
                                     <span>Capacity</span>
-                                    <span>{Math.round((batch.students?.length || 0) / batch.capacity * 100)}%</span>
+                                    <span>{Math.round((batch.enrollments?.length || 0) / batch.capacity * 100)}%</span>
                                 </div>
                                 <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                                     <div 
                                         className={`h-full rounded-full ${
-                                            (batch.students?.length || 0) >= batch.capacity 
+                                            (batch.enrollments?.length || 0) >= batch.capacity 
                                                 ? 'bg-gradient-to-r from-red-500 to-pink-600' 
                                                 : 'bg-gradient-to-r from-blue-500 to-purple-600'
                                         }`}
-                                        style={{ width: `${Math.min((batch.students?.length || 0) / batch.capacity * 100, 100)}%` }}
+                                        style={{ width: `${Math.min((batch.enrollments?.length || 0) / batch.capacity * 100, 100)}%` }}
                                     />
                                 </div>
                             </div>
@@ -751,7 +678,7 @@ const Batch = () => {
 
                                         <div className="md:col-span-2">
                                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                Instructor ID *
+                                                Instructor Name *
                                             </label>
                                             <input
                                                 type="text"
@@ -760,7 +687,7 @@ const Batch = () => {
                                                 value={formData.instructor}
                                                 onChange={handleInputChange}
                                                 className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all"
-                                                placeholder="Enter instructor ID"
+                                                placeholder="Enter instructor name"
                                             />
                                         </div>
                                     </div>
@@ -792,11 +719,11 @@ const Batch = () => {
                                         </div>
                                         <div>
                                             <h3 className="text-sm font-medium text-gray-500 mb-1">Course</h3>
-                                            <p className="text-lg font-semibold text-gray-900">{selectedBatch.course}</p>
+                                            <p className="text-lg font-semibold text-gray-900">{selectedBatch.course.title}</p>
                                         </div>
                                         <div>
                                             <h3 className="text-sm font-medium text-gray-500 mb-1">Instructor</h3>
-                                            <p className="text-lg font-semibold text-gray-900">{selectedBatch.instructor}</p>
+                                            <p className="text-lg font-semibold text-gray-900">{selectedBatch.course.instructorName}</p>
                                         </div>
                                         <div>
                                             <h3 className="text-sm font-medium text-gray-500 mb-1">Status</h3>
@@ -817,7 +744,7 @@ const Batch = () => {
                                         <div>
                                             <h3 className="text-sm font-medium text-gray-500 mb-1">Capacity</h3>
                                             <p className="text-lg font-semibold text-gray-900">
-                                                {selectedBatch.students?.length || 0} / {selectedBatch.capacity}
+                                                {selectedBatch.enrollments?.length || 0} / {selectedBatch.capacity}
                                             </p>
                                         </div>
                                     </div>
@@ -826,12 +753,12 @@ const Batch = () => {
                                     <div className="mt-6 pt-6 border-t border-gray-200">
                                         <h3 className="text-lg font-semibold text-gray-900 mb-4">Enrolled Students</h3>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-64 overflow-y-auto">
-                                            {selectedBatch.students?.map((student, index) => (
-                                                <div key={student.id} className="bg-gray-50 p-3 rounded-lg">
+                                            {selectedBatch.enrollments?.map((enrollment, index) => (
+                                                <div key={enrollment._id} className="bg-gray-50 p-3 rounded-lg">
                                                     <div className="flex items-center justify-between">
                                                         <div>
-                                                            <p className="font-medium text-gray-900">{student.name}</p>
-                                                            <p className="text-sm text-gray-600">{student.email}</p>
+                                                            <p className="font-medium text-gray-900">{enrollment.user.name}</p>
+                                                            <p className="text-sm text-gray-600">{enrollment.user.email}</p>
                                                         </div>
                                                         <span className="text-xs font-medium px-2 py-1 bg-blue-100 text-blue-800 rounded-full">
                                                             #{index + 1}
