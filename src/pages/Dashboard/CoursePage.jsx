@@ -1,6 +1,5 @@
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
-import { mockCourses } from "../../data/mockCourses";
 import {
   useGetCourseLessonsQuery,
   useGetEnrollmentsQuery,
@@ -18,7 +17,6 @@ import { CourseLoadingSkeleton } from "../../component/skeleton/CourseLoadingSke
 // Main Course Page
 const CoursePage = () => {
   const { id } = useParams();
-  const course = useMemo(() => mockCourses.find((c) => c.id === id), [id]);
   const { data: quiz, isLoading: quizLoading } = useGetQuizByIdQuery(id);
   const { data: enrollmentsResp, isLoading: enrollLoading } = useGetEnrollmentsQuery();
 
@@ -28,14 +26,16 @@ const CoursePage = () => {
 
   const courseFromEnroll = enrollmentForCourse ? enrollmentForCourse.course : null;
 
-  const initialCourse = course || (courseFromEnroll ? {
-    id: courseFromEnroll._id,
-    title: courseFromEnroll.title,
-    description: courseFromEnroll.description,
-    progress: enrollmentForCourse?.progress ?? 0,
-    lessons: courseFromEnroll.syllabus || [],
-    thumbnailURL: courseFromEnroll.thumbnailURL,
-  } : null);
+  const initialCourse = courseFromEnroll
+    ? {
+        id: courseFromEnroll._id,
+        title: courseFromEnroll.title,
+        description: courseFromEnroll.description,
+        progress: enrollmentForCourse?.progress ?? 0,
+        lessons: courseFromEnroll.syllabus || [],
+        thumbnailURL: courseFromEnroll.thumbnailURL,
+      }
+    : null;
 
   const [localCourse, setLocalCourse] = useState(initialCourse);
   const [quizResult, setQuizResult] = useState(null);

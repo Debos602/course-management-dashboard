@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { MdOutlineSchool } from "react-icons/md";
 import { useAppSelector } from "../../../redux/features/hook";
 import { BathIcon } from "lucide-react";
+import { MdQuiz } from "react-icons/md";
 
 
 const Sidebar = () => {
@@ -22,6 +23,7 @@ const Sidebar = () => {
                   { to: "", label: "Dashboard Overview", Icon: FaTachometerAlt },
                   { to: "course-management", label: "Course Management", Icon: FaShoppingCart },
                   { to: "batch", label: "Batch", Icon: BathIcon },
+                  { to: "Quiz", label: "Quiz", Icon: MdQuiz },
               ];
 
     return (

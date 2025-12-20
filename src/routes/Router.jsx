@@ -11,6 +11,8 @@ import Register from "../pages/Register/Register";
 import ProtectedRoute from "./ProtectedRoute";
 import CourseManagement from "../pages/CourseManagement/CourseManagement";
 import Batch from "../pages/Batch/Batch";
+import Quiz from "../pages/Quiz/Quiz";
+
 
 export const router = createBrowserRouter([
     { path: "/", element: <Login /> }, // Login route
@@ -29,6 +31,7 @@ export const router = createBrowserRouter([
             { path: "course/:id", element: <CoursePage /> },
             { path: "batch", element: <Batch /> },
             { path: "course-management", element: <CourseManagement /> },
+            { path: "Quiz", element: <Quiz /> }
         ],
     },
     {

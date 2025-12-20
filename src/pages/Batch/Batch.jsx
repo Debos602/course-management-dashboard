@@ -6,7 +6,7 @@ import {
   CheckCircle, AlertCircle, Loader2, Hash, BookOpen,
   Eye, Save, ChevronLeft, UserPlus, UserMinus
 } from "lucide-react";
-import Loading from "../../component/Loading/Loading";
+import BatchSkeleton from "../../component/skeleton/BatchSkeleton";
 import { useGetAllBatchesQuery } from "../../redux/features/batch/batchApi";
 
 const Batch = () => {
@@ -345,7 +345,7 @@ const Batch = () => {
         });
     };
 
-    if (isLoading) return <Loading />;
+    if (isLoading) return <BatchSkeleton />;
     if (isError) return <div className="error-container">Error: {error?.message}</div>;
 
     return (

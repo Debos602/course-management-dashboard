@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import { mockCourses } from "../../data/mockCourses";
 import { useAppSelector } from "../../redux/features/hook";
 import { useGetEnrollmentsQuery } from "../../redux/features/courses/coursesApi";
 
@@ -15,13 +14,14 @@ const StudentDashboard = () => {
       title: c.title,
       description: c.description,
       progress: enr.progress ?? 0,
-      lessons: (c.syllabus && c.syllabus.length) || 0,
+      lessons: c.syllabus || [],
       thumbnailURL: c.thumbnailURL,
       enrolledAt: enr.enrolledAt,
     };
   });
 
-  const courses = apiCourses.length ? apiCourses : mockCourses.filter((c) => c.enrolled);
+  // Use API-provided courses only
+  const courses = apiCourses;
 
   const avgProgress = Math.round(
     courses.reduce((acc, c) => acc + (c.progress || 0), 0) / (courses.length || 1)
