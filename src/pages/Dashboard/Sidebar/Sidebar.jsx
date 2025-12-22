@@ -4,6 +4,7 @@ import { MdOutlineSchool } from "react-icons/md";
 import { useAppSelector } from "../../../redux/features/hook";
 import { BathIcon } from "lucide-react";
 import { MdQuiz } from "react-icons/md";
+import { MdPlayLesson } from "react-icons/md";
 
 
 const Sidebar = () => {
@@ -24,6 +25,7 @@ const Sidebar = () => {
                   { to: "course-management", label: "Course Management", Icon: FaShoppingCart },
                   { to: "batch", label: "Batch Management", Icon: BathIcon },
                   { to: "Quiz", label: "Quiz Management", Icon: MdQuiz },
+                  { to: "Lessons", label: "Lessons Management", Icon: MdPlayLesson },
               ];
 
     return (

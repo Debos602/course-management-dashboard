@@ -1,5 +1,4 @@
 import { createBrowserRouter } from "react-router-dom";
-import Users from "../pages/Batch/Batch";
 import NotFound from "../pages/NotFound/NotFound";
 import ErrorBoundary from "../pages/ErrorBoundary/ErrorBoundary";
 import DashboardLayout from "../pages/Dashboard/Layout/DashboardLayout";
@@ -12,6 +11,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import CourseManagement from "../pages/CourseManagement/CourseManagement";
 import Batch from "../pages/Batch/Batch";
 import Quiz from "../pages/Quiz/Quiz";
+import Lessons from "../pages/Lessons/Lessons";
 
 
 export const router = createBrowserRouter([
@@ -31,7 +31,8 @@ export const router = createBrowserRouter([
             { path: "course/:id", element: <CoursePage /> },
             { path: "batch", element: <Batch /> },
             { path: "course-management", element: <CourseManagement /> },
-            { path: "Quiz", element: <Quiz /> }
+            { path: "Quiz", element: <Quiz /> },
+            { path: "Lessons", element: <Lessons /> }
         ],
     },
     {

@@ -102,8 +102,16 @@ export const coursesApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Courses"],
     }),
+    // Delete a lesson by id
+    deleteLesson: builder.mutation({
+      query: (lessonId) => ({
+        url: `/lessons/${lessonId}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Lessons'],
+    }),
 
   }),
 });
 
-export const { useGetEnrollmentsQuery, useGetCourseLessonsQuery, useUpdateEnrollmentProgressMutation, useCreateAssignmentMutation, useGetAllCoursesQuery, useCreateCourseMutation, useDeleteCourseMutation, useUpdateCourseMutation } = coursesApi;
+export const { useGetEnrollmentsQuery, useGetCourseLessonsQuery, useUpdateEnrollmentProgressMutation, useCreateAssignmentMutation, useGetAllCoursesQuery, useCreateCourseMutation, useDeleteCourseMutation, useUpdateCourseMutation, useDeleteLessonMutation } = coursesApi;

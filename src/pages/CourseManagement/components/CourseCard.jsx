@@ -1,7 +1,10 @@
-import React from 'react';
-import { Edit, Trash2, Hash, Star, Tag } from 'lucide-react';
+import React, { useState } from 'react';
+import { Edit, Trash2, Hash, Star, Tag, Video } from 'lucide-react';
+import CreateLessonModal from './CreateLessonModal';
 
 const CourseCard = ({ course, onEdit, onDelete, onCreateQuiz }) => {
+  const [openCreateModal, setOpenCreateModal] = useState(false);
+
   return (
     <div className="course-card bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
       <div className="relative h-48 overflow-hidden">
@@ -51,6 +54,11 @@ const CourseCard = ({ course, onEdit, onDelete, onCreateQuiz }) => {
             <button onClick={() => onCreateQuiz && onCreateQuiz(course._id)} className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors" title="Create Quiz for this course">
               <Hash className="w-4 h-4" />
             </button>
+            {/* Create Lesson (video upload modal) */}
+            <button onClick={() => setOpenCreateModal(true)} className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors" title="Create Lesson (upload video)">
+              <Video className="w-4 h-4" />
+            </button>
+            <CreateLessonModal open={openCreateModal} onClose={() => setOpenCreateModal(false)} courseId={course._id} onSuccess={(data) => { console.log('Lesson created', data); }} />
             <button onClick={() => onEdit && onEdit(course)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Edit">
               <Edit className="w-4 h-4" />
             </button>
@@ -65,3 +73,4 @@ const CourseCard = ({ course, onEdit, onDelete, onCreateQuiz }) => {
 };
 
 export default CourseCard;
+ 
