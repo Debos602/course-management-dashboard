@@ -22,8 +22,8 @@ const Sidebar = () => {
             : [
                   { to: "", label: "Dashboard Overview", Icon: FaTachometerAlt },
                   { to: "course-management", label: "Course Management", Icon: FaShoppingCart },
-                  { to: "batch", label: "Batch", Icon: BathIcon },
-                  { to: "Quiz", label: "Quiz", Icon: MdQuiz },
+                  { to: "batch", label: "Batch Management", Icon: BathIcon },
+                  { to: "Quiz", label: "Quiz Management", Icon: MdQuiz },
               ];
 
     return (

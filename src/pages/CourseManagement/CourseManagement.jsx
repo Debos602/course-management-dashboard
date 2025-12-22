@@ -5,6 +5,12 @@ import {
   Loader2, Hash, Check, Globe
 } from 'lucide-react';
 import { useCreateCourseMutation, useDeleteCourseMutation, useGetAllCoursesQuery, useUpdateCourseMutation } from '../../redux/features/courses/coursesApi';
+import { useCreateQuizMutation } from '../../redux/features/quize/quizeApi';
+import CourseCard from './components/CourseCard';
+import Controls from './components/Controls';
+import CourseModal from './components/CourseModal';
+import QuizModal from './components/QuizModal';
+import StatsCards from './components/StatsCards';
 import { toast } from 'sonner';
 import CourseManagementSkeleton from '../../component/skeleton/CourseManagementSkeleton';
 import gsap from 'gsap';
@@ -81,6 +87,22 @@ const CourseManagement = () => {
     thumbnailURL: '',
     thumbnailPreview: ''
   });
+
+  // Quiz modal state
+  const [isQuizModalOpen, setIsQuizModalOpen] = useState(false);
+  const [quizCourseId, setQuizCourseId] = useState(null);
+  const [quizData, setQuizData] = useState({
+    title: '',
+    course: '',
+    questions: [
+      { question: '', options: ['', ''], correctAnswerIndex: 0, explanation: '', marks: 1 }
+    ],
+    durationMinutes: 30,
+    totalMarks: 0,
+    isPublished: false
+  });
+
+  const [createQuiz, { isLoading: isCreatingQuiz }] = useCreateQuizMutation();
 
   // Enhanced GSAP animations on mount
   useEffect(() => {
@@ -775,6 +797,117 @@ const CourseManagement = () => {
     setPage(1);
   };
 
+  // Quiz modal helpers
+  const openQuizModal = (courseId) => {
+    setQuizCourseId(courseId);
+    setQuizData({
+      title: '',
+      course: courseId,
+      questions: [{ question: '', options: ['', ''], correctAnswerIndex: 0, explanation: '', marks: 1 }],
+      durationMinutes: 30,
+      totalMarks: 0,
+      isPublished: false
+    });
+    gsap.to('.create-button', { scale: 0.95, duration: 0.08, yoyo: true, repeat: 1, onComplete: () => setIsQuizModalOpen(true) });
+  };
+
+  const closeQuizModal = () => {
+    gsap.to('.modal-backdrop-quiz', {
+      opacity: 0,
+      duration: 0.25,
+      onComplete: () => setIsQuizModalOpen(false)
+    });
+  };
+
+  const handleQuizFieldChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setQuizData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
+  };
+
+  const handleQuestionChange = (qIndex, field, value) => {
+    setQuizData(prev => {
+      const questions = [...prev.questions];
+      questions[qIndex] = { ...questions[qIndex], [field]: value };
+      return { ...prev, questions };
+    });
+  };
+
+  const addQuestion = () => {
+    setQuizData(prev => ({
+      ...prev,
+      questions: [...prev.questions, { question: '', options: ['', ''], correctAnswerIndex: 0, explanation: '', marks: 1 }]
+    }));
+  };
+
+  const removeQuestion = (index) => {
+    setQuizData(prev => ({ ...prev, questions: prev.questions.filter((_, i) => i !== index) }));
+  };
+
+  const addOption = (qIndex) => {
+    setQuizData(prev => {
+      const questions = [...prev.questions];
+      questions[qIndex].options = [...questions[qIndex].options, ''];
+      return { ...prev, questions };
+    });
+  };
+
+  const removeOption = (qIndex, oIndex) => {
+    setQuizData(prev => {
+      const questions = [...prev.questions];
+      questions[qIndex].options = questions[qIndex].options.filter((_, i) => i !== oIndex);
+      if (questions[qIndex].correctAnswerIndex >= questions[qIndex].options.length) {
+        questions[qIndex].correctAnswerIndex = 0;
+      }
+      return { ...prev, questions };
+    });
+  };
+
+  const handleOptionChange = (qIndex, oIndex, value) => {
+    setQuizData(prev => {
+      const questions = [...prev.questions];
+      questions[qIndex].options = questions[qIndex].options.map((opt, i) => i === oIndex ? value : opt);
+      return { ...prev, questions };
+    });
+  };
+
+  const setCorrectAnswer = (qIndex, index) => {
+    setQuizData(prev => {
+      const questions = [...prev.questions];
+      questions[qIndex].correctAnswerIndex = index;
+      return { ...prev, questions };
+    });
+  };
+
+  const handleQuizSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      // compute total marks if not provided
+      const total = quizData.questions.reduce((s, q) => s + (Number(q.marks) || 0), 0);
+      const payload = {
+        title: quizData.title,
+        course: quizData.course || quizCourseId,
+        questions: quizData.questions.map(q => ({
+          question: q.question,
+          options: q.options,
+          correctAnswerIndex: Number(q.correctAnswerIndex),
+          explanation: q.explanation,
+          marks: Number(q.marks) || 0
+        })),
+        durationMinutes: Number(quizData.durationMinutes) || 0,
+        totalMarks: total,
+        isPublished: !!quizData.isPublished
+      };
+
+      await createQuiz(payload).unwrap();
+      toast.success('Quiz created successfully');
+      setIsQuizModalOpen(false);
+    } catch (err) {
+      console.error('Quiz creation failed', err);
+      toast.error(err?.data?.message || 'Failed to create quiz');
+    }
+  };
+
   // Enhanced clear filters animation
   const clearAllFilters = () => {
     // Elegant filter removal animation
@@ -835,157 +968,28 @@ const CourseManagement = () => {
         <p className="text-gray-600">Manage your courses with advanced filtering and search</p>
       </div>
 
-      {/* Stats Cards */}
-      <div ref={statsRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
-        {Object.entries(stats).map(([key, value], index) => (
-          <div key={key} className="stat-card bg-white rounded-xl shadow-sm p-4 border border-gray-200 hover:shadow-md transition-shadow duration-300">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 capitalize">
-                  {key.replace(/([A-Z])/g, ' $1').trim()}
-                </p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {key === 'totalRevenue' ? `$${value.toLocaleString()}` : value.toLocaleString()}
-                </p>
-              </div>
-              <div className={`p-2 ${
-                key === 'total' ? 'bg-blue-100' :
-                key === 'published' ? 'bg-green-100' :
-                key === 'draft' ? 'bg-yellow-100' :
-                key === 'totalEnrollment' ? 'bg-purple-100' :
-                'bg-yellow-100'
-              } rounded-lg`}>
-                {key === 'total' ? <Hash className="w-5 h-5 text-blue-600" /> :
-                 key === 'published' ? <Globe className="w-5 h-5 text-green-600" /> :
-                 key === 'draft' ? <Eye className="w-5 h-5 text-yellow-600" /> :
-                 key === 'totalEnrollment' ? <Users className="w-5 h-5 text-purple-600" /> :
-                 <DollarSign className="w-5 h-5 text-yellow-600" />}
-              </div>
-            </div>
-          </div>
-        ))}
+      <div ref={statsRef}>
+        <StatsCards stats={stats} />
       </div>
 
-      {/* Controls Bar */}
-      <div ref={controlsRef} className="bg-white rounded-xl shadow-sm p-4 mb-6 border border-gray-200">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          <div className="flex-1">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="text"
-                placeholder="Search courses by title, description, instructor, or tags..."
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-4">
-            <div className="flex items-center gap-2">
-              <input
-                type="number"
-                placeholder="Min Price"
-                className="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-                value={minPrice}
-                onChange={(e) => {
-                  setMinPrice(e.target.value);
-                  setPage(1);
-                }}
-              />
-              <span className="text-gray-400">-</span>
-              <input
-                type="number"
-                placeholder="Max Price"
-                className="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-                value={maxPrice}
-                onChange={(e) => {
-                  setMaxPrice(e.target.value);
-                  setPage(1);
-                }}
-              />
-            </div>
-
-            <select
-              className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-              value={selectedCategory}
-              onChange={(e) => {
-                setSelectedCategory(e.target.value);
-                setPage(1);
-              }}
-            >
-              <option value="">All Categories</option>
-              {categories.map(category => (
-                <option key={category} value={category}>{category}</option>
-              ))}
-            </select>
-
-            <select
-              className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-              value={selectedStatus}
-              onChange={(e) => {
-                setSelectedStatus(e.target.value);
-                setPage(1);
-              }}
-            >
-              <option value="">All Status</option>
-              <option value="published">Published</option>
-              <option value="draft">Draft</option>
-            </select>
-
-            <button
-              onClick={clearAllFilters}
-              className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <X className="w-4 h-4" />
-              Clear Filters
-            </button>
-
-            <button
-              onClick={handleCreate}
-              className="create-button flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none transition-colors"
-            >
-              <Plus className="w-5 h-5" />
-              <span>New Course</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Tag Filters Section */}
-        {allTags.length > 0 && (
-          <div className="mt-4">
-            <div className="flex items-center gap-2 mb-2">
-              <Tag className="w-4 h-4 text-gray-500" />
-              <span className="text-sm font-medium text-gray-700">Filter by Tags:</span>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {allTags.slice(0, 10).map(tag => (
-                <button
-                  key={tag}
-                  data-filter-tag={tag}
-                  onClick={() => handleTagFilterToggle(tag)}
-                  className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm transition-colors ${
-                    selectedTags.includes(tag)
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  <Tag className="w-3 h-3 tag-icon" />
-                  {tag}
-                  {selectedTags.includes(tag) && (
-                    <Check className="w-3 h-3 ml-1" />
-                  )}
-                </button>
-              ))}
-              {allTags.length > 10 && (
-                <span className="text-sm text-gray-500 px-2 py-1">
-                  +{allTags.length - 10} more tags
-                </span>
-              )}
-            </div>
-          </div>
-        )}
+      <div ref={controlsRef}>
+        <Controls
+          search={search}
+          setSearch={(v) => { setSearch(v); setPage(1); }}
+          minPrice={minPrice}
+          setMinPrice={(v) => { setMinPrice(v); setPage(1); }}
+          maxPrice={maxPrice}
+          setMaxPrice={(v) => { setMaxPrice(v); setPage(1); }}
+          categories={categories}
+          selectedCategory={selectedCategory}
+          setSelectedCategory={(v) => { setSelectedCategory(v); setPage(1); }}
+          selectedStatus={selectedStatus}
+          setSelectedStatus={(v) => { setSelectedStatus(v); setPage(1); }}
+          allTags={allTags}
+          selectedTags={selectedTags}
+          handleTagFilterToggle={handleTagFilterToggle}
+          onCreate={handleCreate}
+        />
       </div>
 
       {/* Active Filters Display */}
@@ -1037,6 +1041,24 @@ const CourseManagement = () => {
         </div>
       )}
 
+      {isQuizModalOpen && (
+        <QuizModal
+          quizData={quizData}
+          setQuizData={setQuizData}
+          handleQuizFieldChange={handleQuizFieldChange}
+          handleQuestionChange={handleQuestionChange}
+          addQuestion={addQuestion}
+          removeQuestion={removeQuestion}
+          addOption={addOption}
+          removeOption={removeOption}
+          handleOptionChange={handleOptionChange}
+          setCorrectAnswer={setCorrectAnswer}
+          handleQuizSubmit={handleQuizSubmit}
+          isCreating={isCreatingQuiz}
+          onCancel={closeQuizModal}
+        />
+      )}
+
       {/* Courses Grid */}
       {isLoading ? (
         <div className="text-center py-12">
@@ -1047,88 +1069,13 @@ const CourseManagement = () => {
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             {courses.length > 0 ? courses.map((course, index) => (
-              <div 
-                key={course._id} 
-                ref={el => courseCardsRef.current[index] = el}
-                className="course-card bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden"
-              >
-                {/* Course Thumbnail */}
-                <div className="relative h-48 overflow-hidden">
-                  <img
-                    src={course.thumbnailURL || 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=450&fit=crop'}
-                    alt={course.title}
-                    className="w-full h-full object-cover"
-                  />
-                  
-                  {/* Rating Badge */}
-                  {course.rating && (
-                    <div className="absolute top-3 right-3 flex items-center gap-1 px-3 py-1 bg-white/95 backdrop-blur-sm rounded-full">
-                      <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
-                      <span className="text-sm font-bold text-gray-900">{course.rating.toFixed(1)}</span>
-                    </div>
-                  )}
-                  
-                  {/* Status Badge */}
-                  <div className="absolute top-3 left-3">
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                      course.isPublished ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                    }`}>
-                      {course.isPublished ? 'Published' : 'Draft'}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Course Content */}
-                <div className="p-5">
-                  <div className="flex items-start justify-between mb-3">
-                    <h3 className="text-lg font-semibold text-gray-900 line-clamp-1">{course.title}</h3>
-                    <span className="text-xl font-bold text-blue-600">${course.price}</span>
-                  </div>
-                  
-                  <p className="text-gray-600 text-sm mb-4 line-clamp-2">{course.description}</p>
-                  
-                  {/* Tags */}
-                  {course.tags && course.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mb-4">
-                      {course.tags.slice(0, 3).map((tag, index) => (
-                        <span
-                          key={index}
-                          className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded"
-                        >
-                          <Tag className="w-3 h-3" />
-                          {tag}
-                        </span>
-                      ))}
-                      {course.tags.length > 3 && (
-                        <span className="text-xs text-gray-500">+{course.tags.length - 3} more</span>
-                      )}
-                    </div>
-                  )}
-                  
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-gray-500">Instructor</p>
-                      <p className="text-sm font-medium">{course.instructorName}</p>
-                    </div>
-                    
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={(e) => handleEdit(course, e)}
-                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                        title="Edit"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={(e) => handleDelete(course._id, e)}
-                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                        title="Delete"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
+              <div key={course._id} ref={el => courseCardsRef.current[index] = el}>
+                <CourseCard
+                  course={course}
+                  onEdit={(c) => handleEdit(c)}
+                  onDelete={(id) => handleDelete(id)}
+                  onCreateQuiz={(id) => openQuizModal(id)}
+                />
               </div>
             )) : (
               <div className="md:col-span-3 text-center py-12">
@@ -1137,12 +1084,8 @@ const CourseManagement = () => {
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">No courses found</h3>
                 <p className="text-gray-600 mb-6">Try adjusting your search or filter criteria</p>
-                <button
-                  onClick={handleCreate}
-                  className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  <Plus className="w-5 h-5" />
-                  Create New Course
+                <button onClick={handleCreate} className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                  <Plus className="w-5 h-5" /> Create New Course
                 </button>
               </div>
             )}
@@ -1223,238 +1166,19 @@ const CourseManagement = () => {
         </>
       )}
 
-      {/* Create/Edit Modal */}
       {isModalOpen && (
-        <div className="modal-backdrop fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div 
-            ref={modalRef}
-            className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
-          >
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">
-                  {editingCourse ? 'Edit Course' : 'Create New Course'}
-                </h2>
-                <button
-                  onClick={() => {
-                    gsap.to(modalRef.current, {
-                      scale: 0.9,
-                      opacity: 0.8,
-                      y: 20,
-                      duration: 0.3,
-                      ease: "power2.in",
-                      onComplete: () => setIsModalOpen(false)
-                    });
-                  }}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              <form onSubmit={handleSubmit}>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Course Title *
-                    </label>
-                    <input
-                      type="text"
-                      name="title"
-                      required
-                      value={data.title}
-                      onChange={handleInputChange}
-                      className="modal-input w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-                      placeholder="Enter course title"
-                    />
-                  </div>
-
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Description *
-                    </label>
-                    <textarea
-                      name="description"
-                      required
-                      rows="3"
-                      value={data.description}
-                      onChange={handleInputChange}
-                      className="modal-input w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none resize-none"
-                      placeholder="Describe the course content, objectives, and target audience"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Instructor Name *
-                    </label>
-                    <input
-                      type="text"
-                      name="instructorName"
-                      required
-                      value={data.instructorName}
-                      onChange={handleInputChange}
-                      className="modal-input w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-                      placeholder="Enter instructor name"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Price *
-                    </label>
-                    <input
-                      type="number"
-                      name="price"
-                      required
-                      min="0"
-                      step="0.01"
-                      value={data.price}
-                      onChange={handleInputChange}
-                      className="modal-input w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-                      placeholder="e.g., 44.99"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Category *
-                    </label>
-                    <input
-                      type="text"
-                      name="category"
-                      required
-                      value={data.category}
-                      onChange={handleInputChange}
-                      className="modal-input w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-                      placeholder="e.g., optimization"
-                    />
-                  </div>
-
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Tags
-                    </label>
-                    <div className="flex flex-wrap gap-2 mb-2">
-                      {allTags.slice(0, 10).map(tag => (
-                        <button
-                          type="button"
-                          key={tag}
-                          data-tag={tag}
-                          onClick={() => handleTagToggle(tag)}
-                          className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm transition-colors ${
-                            data.tags.includes(tag)
-                              ? 'bg-blue-100 text-blue-800 border border-blue-200'
-                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                          }`}
-                        >
-                          <Tag className="w-3 h-3 tag-icon" />
-                          {tag}
-                          {data.tags.includes(tag) && (
-                            <Check className="w-3 h-3 ml-1" />
-                          )}
-                        </button>
-                      ))}
-                    </div>
-                    <input
-                      type="text"
-                      placeholder="Add custom tags (comma separated)"
-                      className="modal-input w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ',') {
-                          e.preventDefault();
-                          const value = e.target.value.trim();
-                          if (value && !data.tags.includes(value)) {
-                            setData(prev => ({
-                              ...prev,
-                              tags: [...prev.tags, value]
-                            }));
-                            e.target.value = '';
-                          }
-                        }
-                      }}
-                    />
-                  </div>
-
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Thumbnail
-                    </label>
-                    
-                    {/* Show selected filename */}
-                    {data.thumbnailURL && data.thumbnailURL instanceof File && (
-                      <div className="file-selected-indicator mb-2 text-sm text-green-600">
-                        Selected: {data.thumbnailURL.name}
-                      </div>
-                    )}
-                    
-                    {/* Show existing thumbnail if editing */}
-                    {editingCourse && !(data.thumbnailURL instanceof File) && data.thumbnailURL && (
-                      <div className="mb-2">
-                        <img 
-                          src={data.thumbnailURL} 
-                          alt="Current thumbnail" 
-                          className="w-32 h-20 object-cover rounded"
-                        />
-                      </div>
-                    )}
-                    
-                    <input
-                      type="file"
-                      name="thumbnailURL"
-                      accept="image/*"
-                      onChange={handleFileChange}
-                      className="modal-input w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-                    />
-                    <p className="mt-1 text-xs text-gray-500">
-                      Upload a thumbnail image for the course
-                    </p>
-                  </div>
-
-                  <div className="md:col-span-2">
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        name="isPublished"
-                        checked={data.isPublished}
-                        onChange={handleInputChange}
-                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      <span className="text-sm font-medium text-gray-700">Publish this course</span>
-                    </label>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-end gap-3 pt-6 border-t border-gray-200">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      gsap.to(modalRef.current, {
-                        scale: 0.9,
-                        opacity: 0.8,
-                        y: 20,
-                        duration: 0.3,
-                        ease: "power2.in",
-                        onComplete: () => setIsModalOpen(false)
-                      });
-                    }}
-                    className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="flex items-center gap-2 bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none transition-colors"
-                    disabled={isCreating || isUpdating}
-                  >
-                    <Save className="w-4 h-4" />
-                    {editingCourse ? (isUpdating ? 'Updating...' : 'Update Course') : (isCreating ? 'Creating...' : 'Create Course')}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
+        <CourseModal
+          editingCourse={editingCourse}
+          data={data}
+          handleInputChange={handleInputChange}
+          handleFileChange={handleFileChange}
+          handleTagToggle={handleTagToggle}
+          allTags={allTags}
+          onCancel={() => { gsap.to(modalRef.current, { scale: 0.9, opacity: 0.8, y: 20, duration: 0.3, ease: 'power2.in', onComplete: () => setIsModalOpen(false) }); }}
+          onSubmit={handleSubmit}
+          isCreating={isCreating}
+          isUpdating={isUpdating}
+        />
       )}
     </div>
   );

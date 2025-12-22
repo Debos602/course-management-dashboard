@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import gsap from "gsap";
 import {
     useGetQuizzesQuery,
     useUpdateQuizMutation,
     useDeleteQuizMutation,
 } from "../../redux/features/quize/quizeApi";
+import { QuizSkeleton } from "../../component/skeleton/QuizSkeleton";
 
 export default function Quiz() {
     const { data: quizzesResponse, isLoading, isError, refetch } = useGetQuizzesQuery();
@@ -20,6 +22,9 @@ export default function Quiz() {
         isPublished: false,
     });
 
+    const modalRef = useRef(null);
+    const listRef = useRef(null);
+
     useEffect(() => {
         if (editing) {
             setForm({
@@ -29,8 +34,25 @@ export default function Quiz() {
                 durationMinutes: editing.durationMinutes || 30,
                 isPublished: editing.isPublished || false,
             });
+            gsap.fromTo(
+                modalRef.current,
+                { opacity: 0, y: 50 },
+                { opacity: 1, y: 0, duration: 0.6, ease: "back.out(1.7)" }
+            );
         }
     }, [editing]);
+
+    useEffect(() => {
+        if (!isLoading && quizzes.length > 0 && listRef.current) {
+            gsap.from(listRef.current.children, {
+                opacity: 1,
+                // x: -30,
+                stagger: 0.1,
+                duration: 0.2,
+                ease: "power3.out",
+            });
+        }
+    }, [quizzes, isLoading]);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -145,22 +167,35 @@ export default function Quiz() {
         }
     };
 
+    const closeModal = () => {
+        gsap.to(modalRef.current, {
+            opacity: 0,
+            y: 50,
+            duration: 0.4,
+            ease: "back.in(1.7)",
+            onComplete: () => setEditing(null),
+        });
+    };
+
+    if (isLoading) {
+        return <QuizSkeleton />;
+    }
+
     return (
-        <div className="p-4 bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
-            <h1 className="text-3xl font-extrabold mb-6 text-black-900 tracking-wide">Quiz Management</h1>
+        <div className="p-4 bg-gray-100 min-h-screen">
+            <h1 className="text-3xl font-extrabold mb-6 text-black tracking-wide">Quiz Management</h1>
 
             <div className="mb-8 bg-white rounded-xl shadow-lg p-6">
-                <h2 className="text-xl font-semibold mb-4 text-black-900">Quizzes</h2>
-                {isLoading && <div className="text-indigo-600">Loading...</div>}
+                <h2 className="text-xl font-semibold mb-4 text-black">Quizzes</h2>
                 {isError && <div className="text-red-600">Failed to load quizzes</div>}
-                {!isLoading && quizzes.length === 0 && <div className="text-indigo-600">No quizzes found</div>}
-                <ul className="space-y-4">
+                {quizzes.length === 0 && <div className="text-cyan-600">No quizzes found</div>}
+                <ul ref={listRef} className="space-y-4">
                     {quizzes.map((q) => {
                         const id = q._id || q.id;
                         return (
-                            <li key={id} className="p-4 border border-indigo-200 rounded-lg flex justify-between items-start hover:bg-indigo-50 transition duration-200">
+                            <li key={id} className="p-4 border border-gray-200 rounded-lg flex justify-between items-start hover:bg-cyan-50 transition duration-200">
                                 <div>
-                                    <div className="font-semibold text-indigo-800">{q.title}</div>
+                                    <div className="font-semibold text-cyan-800">{q.title}</div>
                                     <div className="text-sm text-gray-600">{q.description}</div>
                                 </div>
                                 <div className="space-x-3">
@@ -175,15 +210,15 @@ export default function Quiz() {
 
             {editing && (
                 <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
-                    <div className="bg-white p-8 rounded-2xl shadow-2xl max-w-5xl w-full max-h-[85vh] overflow-y-auto relative border border-indigo-300">
+                    <div ref={modalRef} className="bg-white p-8 rounded-2xl shadow-2xl max-w-5xl w-full max-h-[85vh] overflow-y-auto relative border border-cyan-300">
                         <button
                             type="button"
-                            onClick={() => setEditing(null)}
+                            onClick={closeModal}
                             className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl font-bold"
                         >
                             &times;
                         </button>
-                        <h2 className="text-2xl font-bold mb-6 text-indigo-800">Edit Quiz</h2>
+                        <h2 className="text-2xl font-bold mb-6 text-cyan-800">Edit Quiz</h2>
                         <form onSubmit={handleSubmit} className="space-y-5">
                             <div>
                                 <label className="block text-sm font-medium text-black-900">Title</label>
@@ -191,7 +226,7 @@ export default function Quiz() {
                                     name="title"
                                     value={form.title}
                                     onChange={handleChange}
-                                    className="w-full border border-indigo-300 px-3 py-2 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                    className="w-full border border-cyan-300 px-3 py-2 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-cyan-500"
                                     required
                                 />
                             </div>
@@ -201,7 +236,7 @@ export default function Quiz() {
                                     name="description"
                                     value={form.description}
                                     onChange={handleChange}
-                                    className="w-full border border-indigo-300 px-3 py-2 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                    className="w-full border border-cyan-300 px-3 py-2 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-cyan-500"
                                 />
                             </div>
                             <div>
@@ -211,7 +246,7 @@ export default function Quiz() {
                                     type="number"
                                     value={form.durationMinutes}
                                     onChange={handleChange}
-                                    className="w-full border border-indigo-300 px-3 py-2 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                    className="w-full border border-cyan-300 px-3 py-2 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-cyan-500"
                                     min="1"
                                     required
                                 />
@@ -222,20 +257,20 @@ export default function Quiz() {
                                     type="checkbox"
                                     checked={form.isPublished}
                                     onChange={handleChange}
-                                    className="mr-2 h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                    className="mr-2 h-4 w-4 text-cyan-600 border-gray-300 rounded focus:ring-cyan-500"
                                 />
                                 <label className="text-sm font-medium text-black-900">Published</label>
                             </div>
                             <div>
                                 <h3 className="text-lg font-semibold mb-3 text-black-900">Questions</h3>
                                 {form.questions.map((q, qIndex) => (
-                                    <div key={qIndex} className="p-5 border border-indigo-200 rounded-lg mb-5 space-y-4 bg-indigo-50">
+                                    <div key={qIndex} className="p-5 border border-cyan-200 rounded-lg mb-5 space-y-4 bg-cyan-50">
                                         <div>
                                             <label className="block text-sm text-black-900">Question Text</label>
                                             <input
                                                 value={q.question}
                                                 onChange={(e) => updateQuestion(qIndex, "question", e.target.value)}
-                                                className="w-full border border-indigo-300 px-3 py-2 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                                className="w-full border border-cyan-300 px-3 py-2 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-cyan-500"
                                                 required
                                             />
                                         </div>
@@ -246,7 +281,7 @@ export default function Quiz() {
                                                     <input
                                                         value={opt}
                                                         onChange={(e) => updateOption(qIndex, oIndex, e.target.value)}
-                                                        className="flex-1 border border-indigo-300 px-3 py-2 rounded-md mr-3 text-black focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                                        className="flex-1 border border-cyan-300 px-3 py-2 rounded-md mr-3 text-black focus:outline-none focus:ring-2 focus:ring-cyan-500"
                                                         placeholder={`Option ${oIndex + 1}`}
                                                         required
                                                     />
@@ -274,7 +309,7 @@ export default function Quiz() {
                                                 onChange={(e) =>
                                                     updateQuestion(qIndex, "correctAnswerIndex", parseInt(e.target.value))
                                                 }
-                                                className="w-full border border-indigo-300 px-3 py-2 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                                className="w-full border border-cyan-300 px-3 py-2 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-cyan-500"
                                             >
                                                 {q.options.map((_, oIndex) => (
                                                     <option key={oIndex} value={oIndex}>
@@ -288,7 +323,7 @@ export default function Quiz() {
                                             <textarea
                                                 value={q.explanation}
                                                 onChange={(e) => updateQuestion(qIndex, "explanation", e.target.value)}
-                                                className="w-full border border-indigo-300 px-3 py-2 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                                className="w-full border border-cyan-300 px-3 py-2 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-cyan-500"
                                                 rows={3}
                                             />
                                         </div>
@@ -298,7 +333,7 @@ export default function Quiz() {
                                                 type="number"
                                                 value={q.marks}
                                                 onChange={(e) => updateQuestion(qIndex, "marks", Number(e.target.value))}
-                                                className="w-full border border-indigo-300 px-3 py-2 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                                className="w-full border border-cyan-300 px-3 py-2 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-cyan-500"
                                                 min="0"
                                                 required
                                             />
@@ -315,21 +350,21 @@ export default function Quiz() {
                                 <button
                                     type="button"
                                     onClick={addQuestion}
-                                    className="text-sm px-4 py-2 bg-indigo-500 text-white rounded-md hover:bg-indigo-600 transition"
+                                    className="text-sm px-4 py-2 bg-cyan-500 text-white rounded-md hover:bg-cyan-600 transition"
                                 >
                                     Add Question
                                 </button>
                             </div>
-                            <div className="text-sm text-indigo-800 font-medium">
+                            <div className="text-sm text-cyan-800 font-medium">
                                 Total Marks: {calculateTotalMarks(form.questions)}
                             </div>
                             <div className="flex space-x-3">
-                                <button type="submit" className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">
+                                <button type="submit" className="px-4 py-2 bg-cyan-600 text-white rounded-md hover:bg-cyan-700 transition">
                                     Save
                                 </button>
                                 <button
                                     type="button"
-                                    onClick={() => setEditing(null)}
+                                    onClick={closeModal}
                                     className="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400 transition"
                                 >
                                     Cancel
