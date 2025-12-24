@@ -2,7 +2,7 @@ import { baseApi } from "../../api/baseApi";
 
 export const coursesApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getEnrollments: builder.query({
+    getStudentEnrollments: builder.query({
       query: () => ({
         url: "/enrollments/mine",
         method: "GET",
@@ -14,7 +14,14 @@ export const coursesApi = baseApi.injectEndpoints({
         url: `/lessons/course/${courseId}`,
         method: "GET",
       }),
-      providesTags: ["Materials"],
+      providesTags: ["Courses"],
+    }),
+    getCourseById: builder.query({
+      query: (courseId) => ({
+        url: `/courses/${courseId}`,
+        method: 'GET',
+      }),
+      providesTags: (result, error, id) => [{ type: 'Courses', id }],
     }),
     updateEnrollmentProgress: builder.mutation({
       query: ({ courseId, body }) => ({
@@ -114,4 +121,4 @@ export const coursesApi = baseApi.injectEndpoints({
   }),
 });
 
-export const { useGetEnrollmentsQuery, useGetCourseLessonsQuery, useUpdateEnrollmentProgressMutation, useCreateAssignmentMutation, useGetAllCoursesQuery, useCreateCourseMutation, useDeleteCourseMutation, useUpdateCourseMutation, useDeleteLessonMutation } = coursesApi;
+export const { useGetStudentEnrollmentsQuery, useGetCourseLessonsQuery, useGetCourseByIdQuery, useUpdateEnrollmentProgressMutation, useCreateAssignmentMutation, useGetAllCoursesQuery, useCreateCourseMutation, useDeleteCourseMutation, useUpdateCourseMutation, useDeleteLessonMutation } = coursesApi;

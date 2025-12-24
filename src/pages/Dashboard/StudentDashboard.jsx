@@ -1,10 +1,11 @@
 import { Link } from "react-router-dom";
 import { useAppSelector } from "../../redux/features/hook";
-import { useGetEnrollmentsQuery } from "../../redux/features/courses/coursesApi";
+import { useGetStudentEnrollmentsQuery } from "../../redux/features/courses/coursesApi";
 
 const StudentDashboard = () => {
   const user = useAppSelector((s) => s.auth.user);
-  const { data: enrollResp, isLoading, isError, error } = useGetEnrollmentsQuery();
+  const { data: enrollResp, isLoading, isError, error } = useGetStudentEnrollmentsQuery();
+  console.log("Enrollments Response:", enrollResp, { isLoading, isError, error });
 
   // Map API enrollments to course-shaped objects for UI
   const apiCourses = (enrollResp?.data || []).map((enr) => {
@@ -44,7 +45,7 @@ const StudentDashboard = () => {
               <div className="text-sm text-gray-500">Avg Progress</div>
               <div className="text-xl font-semibold text-brand-800">{avgProgress}%</div>
             </div>
-            <Link to="/dashboard" className="px-4 py-2 bg-white border rounded text-sm shadow">Overview</Link>
+            {/* <Link to="/dashboard" className="px-4 py-2 bg-white border rounded text-sm shadow">Overview</Link> */}
           </div>
         </header>
 
@@ -54,7 +55,7 @@ const StudentDashboard = () => {
               <div className="flex items-start justify-between">
                 <div>
                   <h3 className="text-lg font-semibold text-brand-800">{course.title}</h3>
-                  <p className="text-sm text-gray-500 mt-1">{course.description.slice(0, 100)}...</p>
+                  <p className="text-sm text-gray-500 mt-1">{course?.description?.slice(0, 100)}...</p>
                 </div>
                 <div className="text-right">
                   <div className="text-sm text-gray-500">Progress</div>

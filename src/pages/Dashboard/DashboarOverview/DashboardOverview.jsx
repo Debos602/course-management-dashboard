@@ -3,6 +3,8 @@ import MultiAxisLineChart from "../../../component/LineChart/LineChart";
 import DoughnutChartGray from "../../../component/DoughnutChartGray/DoughnutChartGray";
 import { useAppSelector } from "../../../redux/features/hook";
 import { gsap } from "gsap";
+import { useGetEnrollmentsQuery } from "../../../redux/features/enrollments/enrollmentsApi";
+
 
 const DashboardOverview = () => {
     const user = useAppSelector((state) => state.auth.user); // Custom hook to get user data
@@ -11,6 +13,13 @@ const DashboardOverview = () => {
     const quickActionsRef = useRef([]); // Ref for quick action cards
     const chartRef = useRef(null); // Ref for chart section
     const tableRef = useRef(null); // Ref for table
+
+    const { data: enrollmentsStudents, error: enrollmentsError, isLoading: enrollmentsLoading } = useGetEnrollmentsQuery();
+
+    console.log("Enrollments Students Data:", enrollmentsStudents, { enrollmentsError, enrollmentsLoading });
+
+    const recentEnrollments = enrollmentsStudents?.data ?? [];
+
 
     const [quickActions, setQuickActions] = useState([
         {
@@ -39,14 +48,7 @@ const DashboardOverview = () => {
         },
     ]);
 
-    // Static country data
-    const userCountryData = [
-        { country: "USA", population: 331002651, gdp: 21427700 },
-        { country: "China", population: 1439323776, gdp: 14722731 },
-        { country: "Japan", population: 126476461, gdp: 5081770 },
-        { country: "Germany", population: 83783942, gdp: 3845630 },
-        { country: "India", population: 1380004385, gdp: 2875142 },
-    ];
+
 
     useEffect(() => {
         setQuickActions([
@@ -136,7 +138,7 @@ const DashboardOverview = () => {
                 className="flex flex-col md:flex-row justify-between items-center mb-6 bg-white shadow-md p-4 rounded-md border-l-4 border-brand-600"
             >
                 <div className="text-2xl font-semibold text-brand-900">
-                    Welcome, {user?.Username || user?.username || "User"}!
+                    Welcome, {user?.name || user?.name || "User"}!
                 </div>
             </div>
 
@@ -186,87 +188,68 @@ const DashboardOverview = () => {
 
             {/* Country Data Table */}
            {/* Recent Enrolled Students Table */}
-<div
-    ref={tableRef}
-    className="bg-white p-6 rounded-md shadow-md mt-8"
->
-    <h2 className="text-xl font-semibold text-gray-800 mb-4">
-        Recent Enrolled Students
-    </h2>
-    <table className="min-w-full bg-white">
-        <thead>
-            <tr>
-                <th className="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-sm font-semibold text-gray-600">
+        <section
+        ref={tableRef}
+        className="bg-white p-6 rounded-md shadow-md mt-8"
+        >
+        <h2 className="text-xl font-semibold text-gray-800 mb-4">
+            Recent Enrolled Students
+        </h2>
+
+        {/* Responsive Wrapper */}
+        <div className="overflow-x-auto">
+            <table className="min-w-[700px] w-full bg-white">
+            <thead>
+                <tr>
+                <th className="py-2 px-4 bg-gray-50 text-left text-sm font-semibold text-gray-600">
                     Student
                 </th>
-                <th className="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-sm font-semibold text-gray-600">
-                    Course
+                <th className="py-2 px-4 bg-gray-50 text-left text-sm font-semibold text-gray-600">
+                    Email
                 </th>
-                <th className="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-sm font-semibold text-gray-600">
+                <th className="py-2 px-4 bg-gray-50 text-left text-sm font-semibold text-gray-600">
                     Enrollment Date
                 </th>
-                <th className="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-sm font-semibold text-gray-600">
+                <th className="py-2 px-4 bg-gray-50 text-left text-sm font-semibold text-gray-600">
                     Status
                 </th>
-            </tr>
-        </thead>
-        <tbody>
-            {[
-                {
-                    student: "John Doe",
-                    course: "React for Beginners",
-                    date: "Jan 10, 2025",
-                    status: "Active",
-                },
-                {
-                    student: "Sarah Khan",
-                    course: "Advanced Node.js",
-                    date: "Jan 5, 2025",
-                    status: "Completed",
-                },
-                {
-                    student: "Michael Lee",
-                    course: "UI/UX Bootcamp",
-                    date: "Jan 3, 2025",
-                    status: "Active",
-                },
-                {
-                    student: "Emma Watson",
-                    course: "Python Data Analysis",
-                    date: "Dec 30, 2024",
-                    status: "Pending",
-                },
-            ].map((data, idx) => (
-                <tr key={idx}>
-                    <td className="py-2 px-4 border-b border-gray-200 text-sm text-gray-700">
-                        {data.student}
+                </tr>
+            </thead>
+
+            {user.role === "admin" && (
+                <tbody>
+                {recentEnrollments.map((enroll, idx) => (
+                    <tr key={enroll._id || idx} className="hover:bg-gray-50">
+                    <td className="py-2 px-4 text-sm text-black">
+                        {enroll.user?.name || "—"}
                     </td>
-                    <td className="py-2 px-4 border-b border-gray-200 text-sm text-gray-700">
-                        {data.course}
+                    <td className="py-2 px-4 text-sm text-black">
+                        {enroll.user?.email || "—"} 
                     </td>
-                    <td className="py-2 px-4 border-b border-gray-200 text-sm text-gray-700">
-                        {data.date}
+                    <td className="py-2 px-4 text-sm text-black">
+                        {enroll.enrolledAt
+                        ? new Date(enroll.enrolledAt).toLocaleDateString()
+                        : "—"}
                     </td>
-                    <td className="py-2 px-4 border-b border-gray-200 text-sm text-gray-700">
-                        <span
-                            className={`px-3 py-1 rounded-full text-xs font-medium
-                                ${
-                                    data.status === "Active"
-                                        ? "bg-green-100 text-green-700"
-                                        : data.status === "Pending"
-                                        ? "bg-yellow-100 text-yellow-700"
-                                        : "bg-gray-100 text-gray-700"
-                                }
-                            `}
-                        >
-                            {data.status}
+                    <td className="py-2 px-4 text-sm text-black">
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                        enroll.status === "active"
+                            ? "bg-green-100 text-green-700"
+                            : enroll.status === "pending"
+                            ? "bg-yellow-100 text-yellow-700"
+                            : "bg-gray-100 text-gray-700"
+                        }`}>
+                        {enroll.status}
                         </span>
                     </td>
-                </tr>
-            ))}
-        </tbody>
-    </table>
-</div>
+                    </tr>
+                ))}
+                </tbody>
+            )}
+            </table>
+        </div>
+        </section>
+
 
         </div>
     );

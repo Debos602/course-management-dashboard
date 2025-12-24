@@ -34,6 +34,19 @@ export const lessonApi = baseApi.injectEndpoints({
       invalidatesTags: [{ type: "Lessons", id: "LIST" }],
     }),
 
+   // update /lessons/:id
+    updateLesson: builder.mutation({
+      query: ({ lessonId, body }) => ({
+        url: `/lessons/${lessonId}`,
+        method: "PUT",
+        body,
+      }),
+      invalidatesTags: (result, error, { lessonId }) => [
+        { type: "Lessons", id: lessonId },
+        { type: "Lessons", id: "LIST" },
+      ],
+    }),
+
   }),
 });
 
@@ -41,4 +54,5 @@ export const {
   useGetLessonsQuery,
   useGetLessonByIdQuery,
   useCreateLessonMutation,
+  useUpdateLessonMutation,
 } = lessonApi;

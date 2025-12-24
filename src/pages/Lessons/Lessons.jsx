@@ -3,7 +3,9 @@ import gsap from 'gsap';
 import LessonsSkeleton from '../../component/skeleton/LessonsSkeleton';
 import { toast } from 'sonner';
 import { useDeleteLessonMutation } from '../../redux/features/courses/coursesApi';
-import { useGetLessonsQuery } from '../../redux/features/lessons/lessonAPi';
+import { useGetLessonsQuery, useUpdateLessonMutation } from '../../redux/features/lessons/lessonAPi';
+import { Trash2 } from 'lucide-react';
+import { MdUpdate } from 'react-icons/md';
 
 export default function Lessons() {
     const listRef = useRef(null);
@@ -12,12 +14,72 @@ export default function Lessons() {
 
     // RTK Query: fetch lessons
     const { data: lessonsResponse, error, isLoading: loading, refetch } = useGetLessonsQuery({ page: currentPage, limit });
-console.log(lessonsResponse);
+    console.log(lessonsResponse);
     const lessons = lessonsResponse?.data || [];
     const meta = lessonsResponse?.meta || { totalPages: 1 };
 
+    // Update mutation
+    const [updateLesson] = useUpdateLessonMutation();
+
     // Delete mutation
     const [deleteLesson] = useDeleteLessonMutation();
+
+    // Modal state
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedLesson, setSelectedLesson] = useState(null);
+    const [formData, setFormData] = useState({ title: '', order: 1, duration: 0 });
+    const [videoFile, setVideoFile] = useState(null);
+
+    // Update form data when selected lesson changes
+    useEffect(() => {
+        if (selectedLesson) {
+            setFormData({
+                title: selectedLesson.title,
+                order: selectedLesson.order || 1,
+                duration: selectedLesson.duration,
+            });
+            setVideoFile(null);
+        }
+    }, [selectedLesson]);
+
+    // Open modal handler
+    const openUpdateModal = (lesson) => {
+        setSelectedLesson(lesson);
+        setIsModalOpen(true);
+    };
+
+    // Submit handler for update
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const lessonId = selectedLesson._id;
+        let updateData = {
+            title: formData.title,
+            order: formData.order,
+            duration: formData.duration,
+        };
+        try {
+            let body;
+            if (videoFile) {
+                const formDataUpload = new FormData();
+                formDataUpload.append('title', updateData.title);
+                formDataUpload.append('order', updateData.order.toString());
+                formDataUpload.append('duration', updateData.duration.toString());
+                formDataUpload.append('videoURL', videoFile);
+                body = formDataUpload;
+            } else {
+                body = updateData;
+            }
+
+            console.log('Updating lesson with data:', body);
+            await updateLesson({ lessonId, body }).unwrap();
+            refetch();
+            toast.success('Lesson updated');
+            setIsModalOpen(false);
+        } catch (err) {
+            console.error('Update error', err);
+            toast.error(err?.data?.message || err?.message || 'Failed to update lesson');
+        }
+    };
 
     // Delete handler
     const handleDelete = (id) => {
@@ -99,7 +161,8 @@ console.log(lessonsResponse);
                                     <p className="text-xs text-gray-400 mt-2">Created: {new Date(lesson.createdAt).toLocaleString()}</p>
                                 </div>
                                 <div className="flex-shrink-0 ml-3 flex items-start gap-2">
-                                    <button onClick={() => handleDelete(lesson._id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors text-sm">Delete</button>
+                                    <button onClick={() => handleDelete(lesson._id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors text-sm"><Trash2 className="w-4 h-4" /></button>
+                                    <button onClick={() => openUpdateModal(lesson)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors text-sm"><MdUpdate className="w-4 h-4" /></button>
                                 </div>
                             </div>
                         </div>
@@ -125,6 +188,75 @@ console.log(lessonsResponse);
                     Next
                 </button>
             </div>
+
+            {/* Update Modal */}
+            {isModalOpen && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                    <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+                        <h2 className="text-xl font-bold text-black mb-4">Update Lesson</h2>
+                        <form onSubmit={handleSubmit}>
+                            <div className="mb-4">
+                                <label htmlFor="title" className="block text-sm font-medium text-gray-700">Title</label>
+                                <input
+                                    type="text"
+                                    id="title"
+                                    value={formData.title}
+                                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                                    className="mt-1 block w-full border text-black border-gray-300 rounded-md shadow-sm p-2"
+                                    required
+                                />
+                            </div>
+                            <div className="mb-4">
+                                <label htmlFor="order" className="block text-sm font-medium text-gray-700">Order</label>
+                                <input
+                                    type="number"
+                                    id="order"
+                                    value={formData.order}
+                                    onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) })}
+                                    className="mt-1 block w-full border text-black border-gray-300 rounded-md shadow-sm p-2"
+                                    required
+                                />
+                            </div>
+                            <div className="mb-4">
+                                <label htmlFor="duration" className="block text-sm font-medium text-gray-700">Duration (seconds)</label>
+                                <input
+                                    type="number"
+                                    id="duration"
+                                    value={formData.duration}
+                                    onChange={(e) => setFormData({ ...formData, duration: parseInt(e.target.value) })}
+                                    className="mt-1 block w-full border text-black border-gray-300 rounded-md shadow-sm p-2"
+                                    required
+                                />
+                            </div>
+                            <div className="mb-4">
+                                <label htmlFor="videoFile" className="block text-sm font-medium text-gray-700">Upload New Video (optional)</label>
+                                <input
+                                    type="file"
+                                    id="videoFile"
+                                    onChange={(e) => setVideoFile(e.target.files[0])}
+                                    className="mt-1 block w-full text-black border border-gray-300 rounded-md shadow-sm p-2"
+                                    accept="video/*"
+                                />
+                            </div>
+                            <div className="flex justify-end gap-4">
+                                <button
+                                    type="button"
+                                    onClick={() => setIsModalOpen(false)}
+                                    className="px-4 py-2 bg-gray-300 text-gray-700 rounded"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="px-4 py-2 bg-blue-500 text-white rounded"
+                                >
+                                    Update
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

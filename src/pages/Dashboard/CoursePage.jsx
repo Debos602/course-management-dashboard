@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import {
   useGetCourseLessonsQuery,
-  useGetEnrollmentsQuery,
+  useGetStudentEnrollmentsQuery,
   useUpdateEnrollmentProgressMutation,
   useCreateAssignmentMutation,
 } from "../../redux/features/courses/coursesApi";
@@ -16,9 +16,12 @@ import { CourseLoadingSkeleton } from "../../component/skeleton/CourseLoadingSke
 
 // Main Course Page
 const CoursePage = () => {
+
+
+
   const { id } = useParams();
   const { data: quiz, isLoading: quizLoading } = useGetQuizByIdQuery(id);
-  const { data: enrollmentsResp, isLoading: enrollLoading } = useGetEnrollmentsQuery();
+  const { data: enrollmentsResp, isLoading: enrollLoading } = useGetStudentEnrollmentsQuery();
 
   const enrollmentForCourse = (enrollmentsResp?.data || enrollmentsResp || []).find(
     (enr) => (enr.course && (enr.course._id === id || enr.course.id === id))

@@ -6,7 +6,7 @@ import { Input } from "../../component/form/Input";
 import { Button } from "../../component/form/Button";
 import { useRegisterMutation } from "../../redux/features/auth/authApi";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 const Register = () => {
@@ -119,9 +119,7 @@ const Register = () => {
 
               <p className="mt-5 text-sm text-center text-gray-600">
                 Already have an account? {" "}
-                <a href="/" className="text-brand-800 font-semibold hover:underline">
-                  Login
-                </a>
+               <Link to="/" className="text-brand-600 hover:underline">Login here</Link>
               </p>
             </StaggeredAnimationWrapper>
           </div>

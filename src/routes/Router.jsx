@@ -12,11 +12,14 @@ import CourseManagement from "../pages/CourseManagement/CourseManagement";
 import Batch from "../pages/Batch/Batch";
 import Quiz from "../pages/Quiz/Quiz";
 import Lessons from "../pages/Lessons/Lessons";
+import AllCourses from "../pages/All-coures/AllCourses";
+import CourseDetails from "../pages/CourseDetails/CourseDetails";
 
 
 export const router = createBrowserRouter([
     { path: "/", element: <Login /> }, // Login route
     { path: "/register", element: <Register /> },
+    { path: "/courses/:courseId", element: <CourseDetails /> },
     {
         path: "/dashboard",
         element: (
@@ -32,7 +35,10 @@ export const router = createBrowserRouter([
             { path: "batch", element: <Batch /> },
             { path: "course-management", element: <CourseManagement /> },
             { path: "Quiz", element: <Quiz /> },
-            { path: "Lessons", element: <Lessons /> }
+            { path: "Lessons", element: <Lessons /> },
+            { path: "all-courses", element: <AllCourses /> },
+            { path: "course-details/:courseId", element: <CourseDetails /> }
+           
         ],
     },
     {
