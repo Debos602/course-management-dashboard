@@ -62,7 +62,7 @@ const CourseManagement = () => {
               toast.success(`Enrolled in course successfully`);
           } catch (err) {
               console.error(err);
-              toast.error("Failed to enroll.");
+              toast.error(err.data.message);
           }
           };
  

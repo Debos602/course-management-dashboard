@@ -1,11 +1,15 @@
 import { Link } from "react-router-dom";
 import { useAppSelector } from "../../redux/features/hook";
 import { useGetStudentEnrollmentsQuery } from "../../redux/features/courses/coursesApi";
+import { StudentDashboardSkeleton } from "../../component/skeleton/StudentDashboardSkeleton";
 
 const StudentDashboard = () => {
   const user = useAppSelector((s) => s.auth.user);
   const { data: enrollResp, isLoading, isError, error } = useGetStudentEnrollmentsQuery();
-  console.log("Enrollments Response:", enrollResp, { isLoading, isError, error });
+  // console.log("Enrollments Response:", enrollResp, { isLoading, isError, error });
+  if (isLoading) {
+    return <StudentDashboardSkeleton />;
+  }
 
   // Map API enrollments to course-shaped objects for UI
   const apiCourses = (enrollResp?.data || []).map((enr) => {

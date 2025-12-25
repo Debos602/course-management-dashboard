@@ -1,4 +1,4 @@
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, data } from 'react-router-dom';
 import { Star } from 'lucide-react';
 import { toast } from 'sonner';
 import { useGetCourseByIdQuery } from '../../redux/features/courses/coursesApi';
@@ -25,8 +25,9 @@ export default function CourseDetails() {
 
             toast.success(`Enrolled in ${course?.title || "course"}`);
         } catch (err) {
+            console.log('Enrollment error:', err.data.message);
             console.error(err);
-            toast.error("Failed to enroll.");
+            toast.error(err.data.message);
         }
         };
 

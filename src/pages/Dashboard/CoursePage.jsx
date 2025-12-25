@@ -7,7 +7,7 @@ import {
   useCreateAssignmentMutation,
 } from "../../redux/features/courses/coursesApi";
 import { toast } from "sonner";
-import { Quiz } from "../../component/quiz/quiz";
+import { Quiz } from "../../component/Quiz/Quiz";
 import { AssignmentSubmit } from "../../component/assignment/AssignmentSubmit";
 import { useGetQuizByIdQuery } from "../../redux/features/quize/quizeApi";
 import { CourseLoadingSkeleton } from "../../component/skeleton/CourseLoadingSkeleton";
