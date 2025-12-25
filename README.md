@@ -1,10 +1,10 @@
-📚 Course Management Dashboard
+# Course Management Dashboard
 
 A modern, responsive React application for managing courses, demonstrating authentication, dynamic data handling, and a clean UI/UX.
 
 🔗 Live Site: course-management-dashboard-eight.vercel.app 
 🚀 Features
-✅ Authentication System
+## Authentication System
 
 Secure login functionality with token-based authentication
 
@@ -12,7 +12,7 @@ Refresh token support for persistent sessions
 
 Role-based access (e.g., Admin, Instructor, Student)
 
-✅ Dashboard Page
+## Dashboard Page
 
 Protected Dashboard route (only accessible for authenticated users)
 
@@ -21,7 +21,7 @@ Overview of Courses, Batches, and Students
 Lazy loading for lists (Courses, Lessons, Quizzes) to optimize performance
 
 Interactive CRUD operations for courses and content 
-✅ UI/UX and Design
+## UI/UX and Design
 
 Fully responsive and mobile-friendly
 
@@ -30,7 +30,7 @@ Styled with Tailwind CSS for rapid and consistent UI
 Clean layouts with intuitive navigation
 
 Smooth transitions and visual feedback for actions
-📋 Feature Requirements
+## Feature Requirements
 
 Authentication System
 
@@ -49,14 +49,14 @@ Lazy loading for long lists
 Search and filter functionality
 
 CRUD operations for admins/instructors 
-UI/UX and Design
+## UI/UX and Design
 
 Use Tailwind CSS for consistent styling
 
 Focus on usability and accessibility
 
 Interactive tables, cards, and navigation menus 
-✅ Evaluation Criteria
+## Evaluation Criteria
 
 Clean, readable, and maintainable code
 
@@ -65,7 +65,7 @@ Performance optimization (lazy loading, efficient data fetching)
 Strong UI/UX sense and responsive design
 
 Proper state management and React best practices 
-🛠 Tech Stack
+## Tech Stack
 
 React.js (with Hooks)
 
@@ -78,7 +78,7 @@ Axios or Fetch API (for HTTP requests)
 JWT-based authentication
 
 Vercel (for deployment) 
-📁 Folder Structure (Example)
+## Folder Structure (Example)
 course-management/
 ├─ public/
 ├─ src/
@@ -114,16 +114,15 @@ cd course-management
 Install dependencies
 
 
-yarn install
-# or npm install
+
+## npm install
 
 
 
 Start the development server
 
 
-yarn dev
-# or npm run dev
+## npm run dev
 
 
 
