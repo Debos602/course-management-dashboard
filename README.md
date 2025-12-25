@@ -1,77 +1,139 @@
-# Sugary React Recruitment
+📚 Course Management Dashboard
 
-A modern, responsive React application built to demonstrate authentication, data handling, and polished UI/UX for a recruitment challenge.
+A modern, responsive React application for managing courses, demonstrating authentication, dynamic data handling, and a clean UI/UX.
 
-🔗 **Live Site**: [sugary-react-recruitment-three.vercel.app](https://sugary-react-recruitment-three.vercel.app/)
+🔗 Live Site: course-management-dashboard-eight.vercel.app 
+🚀 Features
+✅ Authentication System
 
----
+Secure login functionality with token-based authentication
 
-## 🚀 Features
+Refresh token support for persistent sessions
 
-### ✅ Authentication System
-- Secure **login functionality** with token-based authentication
-- **Refresh token** handling for seamless user experience
+Role-based access (e.g., Admin, Instructor, Student)
 
-### ✅ Dashboard Page
-- Protected **Dashboard** route (accessible only when logged in)
-- Dashboard includes a **Material List**
-- **Lazy loading** implemented on scroll for performance optimization
+✅ Dashboard Page
 
-### ✅ UI/UX and Design
-- Fully **responsive design** with a focus on usability
-- Styled with **Tailwind CSS**
-- Clean layout with interactive and intuitive navigation
+Protected Dashboard route (only accessible for authenticated users)
 
----
+Overview of Courses, Batches, and Students
 
-## 📋 Feature Requirements
+Lazy loading for lists (Courses, Lessons, Quizzes) to optimize performance
 
-1. **Authentication System**
-   - Implement a secure login functionality
-   - Handle refresh tokens for prolonged sessions
+Interactive CRUD operations for courses and content 
+✅ UI/UX and Design
 
-2. **Dashboard Page**
-   - Display only for authenticated users
-   - Show a scrollable list of materials
-   - Enable lazy loading to fetch more materials on scroll
+Fully responsive and mobile-friendly
 
-3. **UI/UX and Design**
-   - Developer is free to choose any design system or component library
-   - Emphasis on creative, consistent, and polished visual presentation
+Styled with Tailwind CSS for rapid and consistent UI
 
----
+Clean layouts with intuitive navigation
 
-## ✅ Evaluation Criteria
+Smooth transitions and visual feedback for actions
+📋 Feature Requirements
 
-- **Attention to detail**
-- **UI/UX sense and usability**
-- **Data structures and performance**
-- **Code quality, readability, and structure**
+Authentication System
 
----
+Implement secure login/logout
 
-## 🛠 Tech Stack
+Refresh token support
 
-- React.js (with Hooks)
-- Tailwind CSS
-- React Router DOM
-- Axios or Fetch API (for HTTP requests)
-- JWT-based authentication
-- Vercel (for deployment)
+Role-based dashboards (optional)
 
----
+Dashboard Page
 
-## 📁 Folder Structure (Simplified)
+Display course list, batch list, student list
 
-# 1. Clone the repository
-git clone https://github.com/Debos602/sugary-react-recruitment.git
+Lazy loading for long lists
 
-# 2. Navigate to the project folder
-cd sugary-react-recruitment
+Search and filter functionality
 
-# 3. Install dependencies
+CRUD operations for admins/instructors 
+UI/UX and Design
+
+Use Tailwind CSS for consistent styling
+
+Focus on usability and accessibility
+
+Interactive tables, cards, and navigation menus 
+✅ Evaluation Criteria
+
+Clean, readable, and maintainable code
+
+Performance optimization (lazy loading, efficient data fetching)
+
+Strong UI/UX sense and responsive design
+
+Proper state management and React best practices 
+🛠 Tech Stack
+
+React.js (with Hooks)
+
+Tailwind CSS
+
+React Router DOM
+
+Axios or Fetch API (for HTTP requests)
+
+JWT-based authentication
+
+Vercel (for deployment) 
+📁 Folder Structure (Example)
+course-management/
+├─ public/
+├─ src/
+│  ├─ api/           # API calls using Axios or Fetch
+│  ├─ assets/        # Images, icons, etc.
+│  ├─ components/    # Reusable UI components
+│  ├─ pages/         # Pages: Login, Dashboard, Courses, Students
+│  ├─ redux/         # State management (slices, store)
+│  ├─ routes/        # Protected and public routes
+│  ├─ utils/         # Helper functions
+│  ├─ App.jsx
+│  └─ index.jsx
+├─ .env
+├─ package.json
+└─ tailwind.config.js
+📦 Getting Started
+
+
+Clone the repository
+
+
+git clone https://github.com/Debos602/course-management.git
+
+
+
+Navigate to the project folder
+
+
+cd course-management
+
+
+
+Install dependencies
+
+
 yarn install
+# or npm install
 
-# 4. Start the development server
+
+
+Start the development server
+
+
 yarn dev
+# or npm run dev
 
+
+
+Open the app in your browser
+
+
+http://localhost:5173
+
+
+This structure keeps your Sugary React Recruitment setup but adapts it for a Course Management Dashboard, with focus on Courses, Students, Batches, and admin-level CRUD functionality.
+
+If you want, I can also rewrite the code skeleton for the dashboard and authentication specifically for course management, with Tailwind styling and lazy loading included.
+Do you want me to do that next?
