@@ -16,6 +16,8 @@ const Login = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({ email: "", password: "", general: "" });
 
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -23,23 +25,21 @@ const Login = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const form = e.target;
-    const formData = new FormData(form);
-    const credentials = {
-      email: (formData.get("email") || "").toString().trim(),
-      password: (formData.get("password") || "").toString(),
-    };
-
-    if (!credentials.email || !credentials.password) {
+    if (!email || !password) {
       toast.error("Please fill in all fields.");
       return;
     }
 
-    if (!validateEmail(credentials.email)) {
+    if (!validateEmail(email)) {
       setErrors({ ...errors, email: "Invalid email format." });
       toast.error("Invalid email format.");
       return;
     }
+
+    const credentials = {
+      email: email.trim(),
+      password,
+    };
 
     userLogin(credentials)
       .unwrap()
@@ -90,11 +90,23 @@ const Login = () => {
       });
   };
 
+  const fillAdminCredentials = (e) => {
+    e.preventDefault();
+    setEmail("debos.das.02@gmail.com");
+    setPassword("password123!");
+  };
+
+  const fillStudentCredentials = (e) => {
+    e.preventDefault();
+    setEmail("smith@gmail.com");
+    setPassword("123456");
+  };
+
   return (
     <div className="min-h-screen flex flex-col md:flex-row">
       {/* Left Side */}
       <AnimationWrapper animationType="slideLeft">
-                <div className="md:w-1/2 flex flex-col justify-center items-center bg-gradient-to-br from-brand-900 to-brand-700 text-brand-100 p-10">
+        <div className="md:w-1/2 flex flex-col justify-center items-center bg-gradient-to-br from-brand-900 to-brand-700 text-brand-100 p-10">
           <div className="flex justify-center items-center mb-6">
             <MdOutlineSchool size={40} className="mr-2" />
             <span className="text-2xl font-bold">CourseManage</span>
@@ -103,7 +115,7 @@ const Login = () => {
             <h1 className="text-4xl font-bold mb-4 text-center">Welcome Back</h1>
           </AnimationWrapper>
           <AnimationWrapper animationType="fadeUp" delay={0.4}>
-                    <p className="text-lg text-brand-300 text-center max-w-sm">
+            <p className="text-lg text-brand-300 text-center max-w-sm">
               Log in to access your course management dashboard and handle your classes, students, and resources effortlessly. We are glad to see you again!
             </p>
           </AnimationWrapper>
@@ -111,10 +123,10 @@ const Login = () => {
       </AnimationWrapper>
 
       {/* Right Side */}
-            <div className="md:w-1/2 flex items-center justify-center bg-brand-50 p-8">
+      <div className="md:w-1/2 flex items-center justify-center bg-brand-50 p-8">
         <AnimationWrapper animationType="slideRight">
           <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-                        <h2 className="text-2xl font-semibold text-center mb-6 text-brand-800">
+            <h2 className="text-2xl font-semibold text-center mb-6 text-brand-800">
               Login to Your Course Dashboard
             </h2>
             <StaggeredAnimationWrapper selector="div, button, p">
@@ -124,14 +136,16 @@ const Login = () => {
                 </div>
               )}
               <Form onSubmit={handleSubmit}>
-                                <Input
-                                  id="email"
-                                  name="email"
-                                  type="text"
-                                  label="Email"
-                                  placeholder="Enter your email"
-                                  className={errors.email ? "border-red-500 focus:ring-red-500" : "focus:ring-brand-500"}
-                                />
+                <Input
+                  id="email"
+                  name="email"
+                  type="text"
+                  label="Email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className={errors.email ? "border-red-500 focus:ring-red-500" : "focus:ring-brand-500"}
+                />
                 {errors.email && <p className="text-sm text-red-600 mt-1">{errors.email}</p>}
 
                 <Input
@@ -140,6 +154,8 @@ const Login = () => {
                   type="password"
                   label="Password"
                   placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className={errors.password ? "border-red-500 focus:ring-red-500" : "focus:ring-brand-500"}
                 />
                 {errors.password && <p className="text-sm text-red-600 mt-1">{errors.password}</p>}
@@ -153,6 +169,17 @@ const Login = () => {
                 Do not have an account?{" "}
                 <a href="/register" className="text-brand-800 font-semibold hover:underline">
                   Sign up
+                </a>
+              </p>
+
+              <p className="mt-3 text-sm text-center text-gray-600">
+                Quick login:{" "}
+                <a href="#" onClick={fillAdminCredentials} className="text-brand-800 font-semibold hover:underline">
+                  Admin credentials
+                </a>{" "}
+                |{" "}
+                <a href="#" onClick={fillStudentCredentials} className="text-brand-800 font-semibold hover:underline">
+                  Student credentials
                 </a>
               </p>
             </StaggeredAnimationWrapper>
