@@ -130,7 +130,7 @@ yarn dev
 Open the app in your browser
 
 
-http://localhost:5173
+https://course-management-dashboard-eight.vercel.app/
 
 
 This structure keeps your Sugary React Recruitment setup but adapts it for a Course Management Dashboard, with focus on Courses, Students, Batches, and admin-level CRUD functionality.
